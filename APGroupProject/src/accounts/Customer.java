@@ -6,6 +6,7 @@ public class Customer extends User{
 	public Customer()
 	{
 		this.customer= new User();
+		
 	}
 	
 	

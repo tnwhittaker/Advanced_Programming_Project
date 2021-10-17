@@ -11,6 +11,7 @@ public class DBConnectorFactory
 	public static Connection getDatabaseConnection()
 	{
 		if(connection == null)
+			
 		{
 			String url="jdbc:mysql://localhost:3306/dblab";
 			try {

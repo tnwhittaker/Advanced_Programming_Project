@@ -14,6 +14,7 @@ public class User {
 	@Column(name="Password")
 	private String password;
 	
+	
 	private static Connection connection=null;
 	private Statement stmt=null;
 	private ResultSet result=null;

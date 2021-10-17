@@ -15,6 +15,7 @@ public class SessionFactoryBuilder {
 			sessionfactory=new Configuration().configure("hibernate.cfg.xml").addAnnotatedClass(Student.class).buildSessionFactory();
 		}
 		
+		
 		return sessionfactory;
 	}
 	

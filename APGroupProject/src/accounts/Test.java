@@ -16,6 +16,7 @@ public class Test {
 		Inventory i= new Inventory();
 		//i.create("ABC1", "Shoes", "Large", "Online", "2021-10-17");
 		
+		
 	}
 
 }

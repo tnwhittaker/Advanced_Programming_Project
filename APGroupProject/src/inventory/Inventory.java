@@ -14,6 +14,7 @@ public class Inventory {
 	@Column(name="ItemID")
 	private String itemID;
 	
+	
 	@Column(name="ItemName")
 	private String itemName;
 	
