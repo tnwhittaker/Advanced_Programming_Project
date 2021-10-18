@@ -1,57 +1,45 @@
 package accounts;
 
 import java.sql.*;
+import java.util.*;
+import java.util.Date;
 
 import javax.persistence.*;
 import javax.swing.JOptionPane;
-
 import connectionFiles.DBConnectorFactory;
-
 @Entity
-@Table(name="transaction")
+@Table(name="company_inventory")
 
-public class Transaction {
+public class CompanyInventory {
 	@Id
-	@Column(name="ID")
+	@Column(name="id")
 	private int ID;
 	
-	
 	@Column(name="equipment_id")
-	private String eID;
+	private int eID;
 	
 	@Column(name="date")
 	private Date date;
-	
-	
-	@Column(name="cost")
-	private int cost;
 	
 	private static Connection connection=null;
 	private Statement statement=null;
 	private ResultSet rslt=null;
 	private int rowsAffected=0;
-	
-	public Transaction()
+
+	@SuppressWarnings("deprecation")
+	public CompanyInventory()
 	{
 		ID=0;
-		eID="";
-		cost=0;
+		eID=0;
+		date= new Date(221, 10, 18);
 		connection= DBConnectorFactory.getDatabaseConnection();
 	}
 
-	public int getID() {
-		return ID;
-	}
-
-	public void setID(int iD) {
-		ID = iD;
-	}
-
-	public String geteID() {
+	public int geteID() {
 		return eID;
 	}
 
-	public void seteID(String eID) {
+	public void seteID(int eID) {
 		this.eID = eID;
 	}
 
@@ -62,24 +50,16 @@ public class Transaction {
 	public void setDate(Date date) {
 		this.date = date;
 	}
-
-	public int getCost() {
-		return cost;
-	}
-
-	public void setCost(int cost) {
-		this.cost = cost;
-	}
 	
-	public void create(int eqID, Date date, int cost)
+	public void create(int eqID, Date date)
 	{
-		String insertSql= "INSERT INTO transaction(eqID, date,cost) VALUES ('"+eqID+"','"+date+"','"+cost+"')";
+		String insertSql= "INSERT INTO company_inventory(equipment_id, date) VALUES ('"+eqID+"','"+date+"')";
 		try {
 			statement= connection.createStatement();
 			rowsAffected=statement.executeUpdate(insertSql);
 			if(rowsAffected==1)
 			{
-				JOptionPane.showMessageDialog(null, "Transaction record created","Transaction Creation",
+				JOptionPane.showMessageDialog(null, "Company Inventory record created","Creation",
 						JOptionPane.INFORMATION_MESSAGE);
 			}
 		} catch (SQLException e) {
@@ -89,7 +69,7 @@ public class Transaction {
 	
 	public void readAll()
 	{
-		String selectSQL="SELECT * FROM transaction WHERE 1=1";
+		String selectSQL="SELECT * FROM company_inventory WHERE 1=1";
 		
 		try {
 			statement=connection.createStatement();
@@ -99,9 +79,8 @@ public class Transaction {
 				int ID=rslt.getInt("ID");
 				int eqID= rslt.getInt("ID");
 				Date date= rslt.getDate("date");
-				int cost=rslt.getInt("cost");
 				
-				System.out.println("ID#: "+ID+"\nEquipment ID: "+eqID+"\nDate: "+date+"\nCost: "+cost);
+				System.out.println("ID#: "+ID+"\nEquipment ID: "+eqID+"\nDate: "+date);
 			}
 			
 		} catch (SQLException e) {
@@ -111,7 +90,7 @@ public class Transaction {
 	
 	public void updateEquimentID(int ID, String newEqID)
 	{
-		String updateSQL="UPDATE transaction SET equipment_id='"+newEqID+"'WHERE id = "+ID;
+		String updateSQL="UPDATE company_inventory SET equipment_id='"+newEqID+"'WHERE id = "+ID;
 		
 		try {
 			statement=connection.createStatement();
@@ -119,7 +98,7 @@ public class Transaction {
 			
 			if(rowsAffected==1)
 			{
-				JOptionPane.showMessageDialog(null, "Transaction record updated","Transaction Update",
+				JOptionPane.showMessageDialog(null, "Record updated","Record Update",
 						JOptionPane.INFORMATION_MESSAGE);
 			}
 			
@@ -130,7 +109,7 @@ public class Transaction {
 	
 	public void updateDate(int ID, Date newDate)
 	{
-		String updateSQL="UPDATE transaction SET date='"+newDate+"'WHERE id = "+ID;
+		String updateSQL="UPDATE company_inventory SET date='"+newDate+"'WHERE id = "+ID;
 		
 		try {
 			statement=connection.createStatement();
@@ -138,7 +117,7 @@ public class Transaction {
 			
 			if(rowsAffected==1)
 			{
-				JOptionPane.showMessageDialog(null, "Transaction record updated","Transaction Update",
+				JOptionPane.showMessageDialog(null, "Record updated","Record Update",
 						JOptionPane.INFORMATION_MESSAGE);
 			}
 			
@@ -147,34 +126,16 @@ public class Transaction {
 		}
 	}
 	
-	public void updateCost(int ID, int newCost)
-	{
-		String updateSQL="UPDATE transaction SET cost='"+newCost+"'WHERE id = "+ID;
-		
-		try {
-			statement=connection.createStatement();
-			rowsAffected= statement.executeUpdate(updateSQL);
-			
-			if(rowsAffected==1)
-			{
-				JOptionPane.showMessageDialog(null, "Transaction record updated","Transaction Update",
-						JOptionPane.INFORMATION_MESSAGE);
-			}
-			
-		} catch (SQLException e) {
-			System.err.println("Error updating "+e.getMessage());
-		}
-	}
-	
+
 	public void delete(int ID)
 	{
-		String deleteSQL="DELETE FROM transaction WHERE id="+ID;
+		String deleteSQL="DELETE FROM company_inventory WHERE id="+ID;
 		try {
 			statement=connection.createStatement();
 			rowsAffected= statement.executeUpdate(deleteSQL);
 			if(rowsAffected==1)
 			{
-				JOptionPane.showMessageDialog(null, "Transaction record Deleted","Transaction Deletion",
+				JOptionPane.showMessageDialog(null, "Record Deleted","Record Deletion",
 						JOptionPane.INFORMATION_MESSAGE);
 			}
 					
@@ -184,6 +145,5 @@ public class Transaction {
 		}
 	}
 	
-
 
 }
