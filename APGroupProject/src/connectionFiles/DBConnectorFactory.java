@@ -13,7 +13,7 @@ public class DBConnectorFactory
 		if(connection == null)
 			
 		{
-			String url="jdbc:mysql://localhost:3306/dblab";
+			String url="jdbc:mysql://localhost:3306/groupproject";
 			try {
 				connection= DriverManager.getConnection(url,"root","");
 				if(connection!=null)
