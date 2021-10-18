@@ -36,6 +36,41 @@ public class Transaction {
 		ID=0;
 		eID="";
 		cost=0;
+		connection= DBConnectorFactory.getDatabaseConnection();
 	}
+
+	public int getID() {
+		return ID;
+	}
+
+	public void setID(int iD) {
+		ID = iD;
+	}
+
+	public String geteID() {
+		return eID;
+	}
+
+	public void seteID(String eID) {
+		this.eID = eID;
+	}
+
+	public Date getDate() {
+		return date;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
+	}
+
+	public int getCost() {
+		return cost;
+	}
+
+	public void setCost(int cost) {
+		this.cost = cost;
+	}
+	
+	
 
 }
