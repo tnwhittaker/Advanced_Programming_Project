@@ -116,8 +116,9 @@ public class User {
 		this.type = type;
 	}
 
-	public void createCustomer(String custID, String email, String Fname, String Lname, String Password,short type)
+	public void createCustomer(String custID, String email, String Fname, String Lname, String Password)
 	{
+		int type=1;
 String insertSql= "INSERT INTO users(first_name, last_name, email, customer_id, password,type) VALUES ('"+ Fname +"','"+Lname+"','"+email+"','"+custID+"','"+Password+"','"+type+"')";   
 		try {
 			stmt= connection.createStatement();
@@ -166,6 +167,28 @@ String insertSql= "INSERT INTO users(first_name, last_name, email, staff_id, pas
 				String staffID=result.getString("staff_id");
 				short type= result.getShort("type");
 				System.out.println("ID#: "+id+"\nFirst Name: "+fname+"\nLast Name:"+lname+"\nEmail: "+email+"\n: Password"+password+"\nCustomer ID: "+custID+"\nStaff ID"+staffID+"\nType: "+type);    
+			}
+			
+		} catch (SQLException e) {
+			System.err.println("Error selecting all "+e.getMessage());
+		}
+	}
+	
+	public void authenticateCustomer(String id, String pass)
+	{
+		String validateSQL="SELECT * FROM users WHERE customer_id='"+id+"'and password='"+pass+"'";
+		
+		try {
+			stmt=connection.createStatement();
+			result= stmt.executeQuery(validateSQL);
+			if(result.next())
+			{
+				JOptionPane.showMessageDialog(null, id+ "has logged in sucessfully");
+			
+			}
+			else
+			{
+				JOptionPane.showMessageDialog(null, id+ "entered something wrong");
 			}
 			
 		} catch (SQLException e) {
