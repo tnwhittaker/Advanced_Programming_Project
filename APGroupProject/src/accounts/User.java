@@ -188,7 +188,7 @@ String insertSql= "INSERT INTO users(first_name, last_name, email, staff_id, pas
 			}
 			else
 			{
-				JOptionPane.showMessageDialog(null, id+ "entered something wrong");
+				JOptionPane.showMessageDialog(null, id+ " entered something wrong");
 			}
 			
 		} catch (SQLException e) {

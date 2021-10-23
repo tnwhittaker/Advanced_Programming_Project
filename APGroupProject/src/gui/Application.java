@@ -128,7 +128,6 @@ public class Application {
 					c.createCustomer(custID, Emailtxt.getText(), FNametxt.getText(), LNametxt.getText(), PWordtxt.getText());
 					custIDtxt.setText(custID);
 				} catch (BadLocationException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				} 
 				
