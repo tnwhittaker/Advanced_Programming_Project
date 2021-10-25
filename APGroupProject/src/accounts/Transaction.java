@@ -4,8 +4,9 @@ import java.sql.*;
 
 import javax.persistence.*;
 import javax.swing.JOptionPane;
-
 import connectionFiles.DBConnectorFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @Entity
 @Table(name="transaction")
@@ -30,6 +31,7 @@ public class Transaction {
 	private Statement statement=null;
 	private ResultSet rslt=null;
 	private int rowsAffected=0;
+	private static final Logger Logger = LogManager.getLogger(Transaction.class);
 	
 	public Transaction()
 	{
@@ -81,9 +83,12 @@ public class Transaction {
 			{
 				JOptionPane.showMessageDialog(null, "Transaction record created","Transaction Creation",
 						JOptionPane.INFORMATION_MESSAGE);
+				Logger.info("Record with ID "+eqID+" was successfully created in the database");
 			}
 		} catch (SQLException e) {
 			System.err.println("Execption: "+e.getMessage());
+			Logger.error("Record with "+eqID+" was not added to the database");
+			Logger.trace(e.getMessage());
 		}
 	}
 	
@@ -121,10 +126,13 @@ public class Transaction {
 			{
 				JOptionPane.showMessageDialog(null, "Transaction record updated","Transaction Update",
 						JOptionPane.INFORMATION_MESSAGE);
+				Logger.info(newEqID+" was successfully updated in the database");
 			}
 			
 		} catch (SQLException e) {
 			System.err.println("Error updating "+e.getMessage());
+			Logger.error(newEqID+" was not updated in the database");
+			Logger.trace(e.getMessage());
 		}
 	}
 	
@@ -140,10 +148,13 @@ public class Transaction {
 			{
 				JOptionPane.showMessageDialog(null, "Transaction record updated","Transaction Update",
 						JOptionPane.INFORMATION_MESSAGE);
+				Logger.info(newDate+" was successfully updated in the database");
 			}
 			
 		} catch (SQLException e) {
 			System.err.println("Error updating "+e.getMessage());
+			Logger.error(newDate+" was not updated in the database");
+			Logger.trace(e.getMessage());
 		}
 	}
 	
@@ -159,10 +170,13 @@ public class Transaction {
 			{
 				JOptionPane.showMessageDialog(null, "Transaction record updated","Transaction Update",
 						JOptionPane.INFORMATION_MESSAGE);
+				Logger.info(newCost+" was successfully updated in the database");
 			}
 			
 		} catch (SQLException e) {
 			System.err.println("Error updating "+e.getMessage());
+			Logger.error(newCost+" was not updated in the database");
+			Logger.trace(e.getMessage());
 		}
 	}
 	
@@ -176,11 +190,14 @@ public class Transaction {
 			{
 				JOptionPane.showMessageDialog(null, "Transaction record Deleted","Transaction Deletion",
 						JOptionPane.INFORMATION_MESSAGE);
+				Logger.info("Record with ID number "+ID+" was successfully deleted in the database");
 			}
 					
 			
 		} catch (SQLException e) {
 			System.err.println("Error deleting "+e.getMessage());
+			Logger.error("Record with ID "+ID+" was not deleted from the database");
+			Logger.trace(e.getMessage());
 		}
 	}
 	

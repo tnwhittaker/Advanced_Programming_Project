@@ -1,11 +1,11 @@
 package accounts;
 
 import java.sql.*;
-
 import javax.persistence.*;
 import javax.swing.JOptionPane;
-
 import connectionFiles.DBConnectorFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @Entity
 @Table(name="rental_status")
@@ -14,14 +14,13 @@ public class RentalStatus {
 	@Column(name="ID")
 	private int ID;
 	
-	
 	@Column(name="status")
 	private String status;
-	
 	private static Connection connection=null;
 	private Statement statement=null;
 	private ResultSet rslt=null;
 	private int rowsAffected=0;
+	private static final Logger Logger = LogManager.getLogger(RentalStatus.class);
 	
 	public RentalStatus()
 	{
@@ -56,9 +55,12 @@ public class RentalStatus {
 			{
 				JOptionPane.showMessageDialog(null, "Status record created","Status Creation",
 						JOptionPane.INFORMATION_MESSAGE);
+				Logger.info(status+" was successfully created in the database");
 			}
 		} catch (SQLException e) {
 			System.err.println("Execption: "+e.getMessage());
+			Logger.error(status+" was not added to the database");
+			Logger.trace(e.getMessage());
 		}
 	}
 	
@@ -94,10 +96,13 @@ public class RentalStatus {
 			{
 				JOptionPane.showMessageDialog(null, "Status record updated","Status Update",
 						JOptionPane.INFORMATION_MESSAGE);
+				Logger.info(newStatus+" was successfully updated in the database");
 			}
 			
 		} catch (SQLException e) {
 			System.err.println("Error updating "+e.getMessage());
+			Logger.error(newStatus+" was not updated in the database");
+			Logger.trace(e.getMessage());
 		}
 	}
 	
@@ -111,11 +116,14 @@ public class RentalStatus {
 			{
 				JOptionPane.showMessageDialog(null, "Inventory record Deleted","Inventory Deletion",
 						JOptionPane.INFORMATION_MESSAGE);
+				Logger.info("Record with ID number "+ID+" was successfully deleted in the database");
 			}
 					
 			
 		} catch (SQLException e) {
 			System.err.println("Error deleting "+e.getMessage());
+			Logger.error("Record with ID "+ID+" was not deleted from the database");
+			Logger.trace(e.getMessage());
 		}
 	}
 	

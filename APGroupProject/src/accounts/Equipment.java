@@ -1,10 +1,16 @@
 package accounts;
 import connectionFiles.DBConnectorFactory;
+
 import java.sql.*;
 import javax.persistence.*;
 import javax.swing.JOptionPane;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+@Entity
+@Table(name="equipment")
 public class Equipment {
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name="id")
@@ -23,6 +29,7 @@ public class Equipment {
 	private Statement stmt=null;
 	private ResultSet result=null;
 	private int numRowsAffected=0;
+	private static final Logger Logger = LogManager.getLogger(Equipment.class);
 	
 	public Equipment()
 	{
@@ -75,9 +82,12 @@ String insertSql= "INSERT INTO groupproject.equipment(name, category_id, availab
 			{
 				JOptionPane.showMessageDialog(null, "Equipment record created","Equipment Creation",
 						JOptionPane.INFORMATION_MESSAGE);
+				Logger.info(name+" was successfully created in the database");
 			}
 		} catch (SQLException e) {
 			System.err.println("Execption: "+e.getMessage());
+			Logger.error(name+" was not added to the database");
+			Logger.trace(e.getMessage());
 		}
 	}
 	
@@ -113,10 +123,14 @@ String insertSql= "INSERT INTO groupproject.equipment(name, category_id, availab
 			{
 				JOptionPane.showMessageDialog(null, "Equipement name has been updated","Record Update",
 						JOptionPane.INFORMATION_MESSAGE);
+				Logger.info(newName+" was successfully updated in the database");
 			}
 			
 		} catch (SQLException e) {
 			System.err.println("Error updating "+e.getMessage());
+			Logger.error(newName+" was not updated to the database");
+			Logger.trace(e.getMessage());
+			
 		}
 	}
 	
@@ -131,28 +145,33 @@ String insertSql= "INSERT INTO groupproject.equipment(name, category_id, availab
 			{
 				JOptionPane.showMessageDialog(null, "Category ID has been updated","Record Update",
 						JOptionPane.INFORMATION_MESSAGE);
+				Logger.info(newCATID+" was successfully updated in the database");
 			}
 			
 		} catch (SQLException e) {
 			System.err.println("Error updating "+e.getMessage());
+			Logger.error(newCATID+" was not updated to the database");
+			Logger.trace(e.getMessage());
 		}
 	}
 	
-	public void updateEmail(int id, short availability)
+	public void updateAvail(int id, short availability)
 	{
 		String updateSQL="UPDATE equipment SET availability='"+availability+"'WHERE id = "+id;
 		try {
 			stmt=connection.createStatement();
 			numRowsAffected= stmt.executeUpdate(updateSQL);
-			
 			if(numRowsAffected==1)
 			{
 				JOptionPane.showMessageDialog(null, "Equpiment availability has been updated","Record Update",
 						JOptionPane.INFORMATION_MESSAGE);
+				Logger.info(availability+" was successfully updated in the database");
 			}
 			
 		} catch (SQLException e) {
 			System.err.println("Error updating "+e.getMessage());
+			Logger.error(availability+" was not updated in the database");
+			Logger.trace(e.getMessage());
 		}
 	}
 	
@@ -166,11 +185,14 @@ String insertSql= "INSERT INTO groupproject.equipment(name, category_id, availab
 			{
 				JOptionPane.showMessageDialog(null, "User record Deleted","Record Deletion",
 						JOptionPane.INFORMATION_MESSAGE);
+				Logger.info("Record with ID number "+id+" was successfully deleted in the database");
 			}
 					
 			
 		} catch (SQLException e) {
 			System.err.println("Error deleting "+e.getMessage());
+			Logger.error("Record with ID "+id+" was not deleted from the database");
+			Logger.trace(e.getMessage());
 		}
 	}
 

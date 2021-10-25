@@ -1,9 +1,10 @@
 package accounts;
 import connectionFiles.DBConnectorFactory;
 import java.sql.*;
-
 import javax.persistence.*;
 import javax.swing.JOptionPane;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @Entity
 @Table(name="users")
@@ -38,6 +39,7 @@ public class User {
 	private Statement stmt=null;
 	private ResultSet result=null;
 	private int numRowsAffected=0;
+	private static final Logger Logger = LogManager.getLogger(User.class);
 	
 	public User()
 	{
@@ -127,9 +129,12 @@ String insertSql= "INSERT INTO users(first_name, last_name, email, customer_id, 
 			{
 				JOptionPane.showMessageDialog(null, "Customer record created","Customer Creation",
 						JOptionPane.INFORMATION_MESSAGE);
+				Logger.info("Record with ID "+custID+" was successfully created in the database");
 			}
 		} catch (SQLException e) {
 			System.err.println("Execption: "+e.getMessage());
+			Logger.error("Record with ID "+custID+" was not added to the database");
+			Logger.trace(e.getMessage());
 		}
 	}
 	
@@ -143,9 +148,12 @@ String insertSql= "INSERT INTO users(first_name, last_name, email, staff_id, pas
 			{
 				JOptionPane.showMessageDialog(null, "Employee record created","Employee Creation",
 						JOptionPane.INFORMATION_MESSAGE);
+				Logger.info("Record with ID "+staffID+" was successfully created in the database");
 			}
 		} catch (SQLException e) {
 			System.err.println("Execption: "+e.getMessage());
+			Logger.error("Record with ID "+staffID+" was not added to the database");
+			Logger.trace(e.getMessage());
 		}
 	}
 	
@@ -184,6 +192,7 @@ String insertSql= "INSERT INTO users(first_name, last_name, email, staff_id, pas
 			if(result.next())
 			{
 				JOptionPane.showMessageDialog(null, id+ "has logged in sucessfully");
+				Logger.info("Customer with ID "+id+" logged into their account");
 			
 			}
 			else
@@ -207,10 +216,13 @@ String insertSql= "INSERT INTO users(first_name, last_name, email, staff_id, pas
 			{
 				JOptionPane.showMessageDialog(null, "First name has been updated","Record Update",
 						JOptionPane.INFORMATION_MESSAGE);
+				Logger.info(newFName+" was successfully updated in the database");
 			}
 			
 		} catch (SQLException e) {
 			System.err.println("Error updating "+e.getMessage());
+			Logger.error(newFName+" was not updated in the database");
+			Logger.trace(e.getMessage());
 		}
 	}
 	
@@ -225,10 +237,13 @@ String insertSql= "INSERT INTO users(first_name, last_name, email, staff_id, pas
 			{
 				JOptionPane.showMessageDialog(null, "Last name has been updated","Record Update",
 						JOptionPane.INFORMATION_MESSAGE);
+				Logger.info(newLName+" was successfully updated in the database");
 			}
 			
 		} catch (SQLException e) {
 			System.err.println("Error updating "+e.getMessage());
+			Logger.error(newLName+" was not updated in the database");
+			Logger.trace(e.getMessage());
 		}
 	}
 	
@@ -243,10 +258,13 @@ String insertSql= "INSERT INTO users(first_name, last_name, email, staff_id, pas
 			{
 				JOptionPane.showMessageDialog(null, "Email has been updated","Record Update",
 						JOptionPane.INFORMATION_MESSAGE);
+				Logger.info(newEmail+" was for "+id+" successfully updated in the database");
 			}
 			
 		} catch (SQLException e) {
 			System.err.println("Error updating "+e.getMessage());
+			Logger.error(newEmail+" for "+id+" was not updated in the database");
+			Logger.trace(e.getMessage());
 		}
 	}
 	
@@ -261,10 +279,13 @@ String insertSql= "INSERT INTO users(first_name, last_name, email, staff_id, pas
 			{
 				JOptionPane.showMessageDialog(null, "Password has been updated","Record Update",
 						JOptionPane.INFORMATION_MESSAGE);
+				Logger.info(newPassword+" was for "+id+" successfully updated in the database");
 			}
 			
 		} catch (SQLException e) {
 			System.err.println("Error updating "+e.getMessage());
+			Logger.error(newPassword+" for "+id+" was not updated in the database");
+			Logger.trace(e.getMessage());
 		}
 	}
 	
@@ -279,10 +300,13 @@ String insertSql= "INSERT INTO users(first_name, last_name, email, staff_id, pas
 			{
 				JOptionPane.showMessageDialog(null, "Customer ID has been updated","Record Update",
 						JOptionPane.INFORMATION_MESSAGE);
+				Logger.info(newCUSTID+" was for "+id+" successfully updated in the database");
 			}
 			
 		} catch (SQLException e) {
 			System.err.println("Error updating "+e.getMessage());
+			Logger.error(newCUSTID+" for "+id+" was not updated in the database");
+			Logger.trace(e.getMessage());
 		}
 	}
 	
@@ -297,10 +321,13 @@ String insertSql= "INSERT INTO users(first_name, last_name, email, staff_id, pas
 			{
 				JOptionPane.showMessageDialog(null, "Employee ID has been updated","Record Update",
 						JOptionPane.INFORMATION_MESSAGE);
+				Logger.info(newSTAFFID+" was for "+id+" successfully updated in the database");
 			}
 			
 		} catch (SQLException e) {
 			System.err.println("Error updating "+e.getMessage());
+			Logger.error(newSTAFFID+" for "+id+" was not updated in the database");
+			Logger.trace(e.getMessage());
 		}
 	}
 	
@@ -315,10 +342,13 @@ String insertSql= "INSERT INTO users(first_name, last_name, email, staff_id, pas
 			{
 				JOptionPane.showMessageDialog(null, "User type has been updated","Record Update",
 						JOptionPane.INFORMATION_MESSAGE);
+				Logger.info(newTYPE+" was for "+id+" successfully updated in the database");
 			}
 			
 		} catch (SQLException e) {
 			System.err.println("Error updating "+e.getMessage());
+			Logger.error(newTYPE+" for "+id+" was not updated in the database");
+			Logger.trace(e.getMessage());
 		}
 	}
 	
@@ -332,11 +362,14 @@ String insertSql= "INSERT INTO users(first_name, last_name, email, staff_id, pas
 			{
 				JOptionPane.showMessageDialog(null, "User record Deleted","Record Deletion",
 						JOptionPane.INFORMATION_MESSAGE);
+				Logger.info("Record with ID number "+id+" was successfully deleted in the database");
 			}
 					
 			
 		} catch (SQLException e) {
 			System.err.println("Error deleting "+e.getMessage());
+			Logger.error("Record with ID "+id+" was not deleted from the database");
+			Logger.trace(e.getMessage());
 		}
 	}
 

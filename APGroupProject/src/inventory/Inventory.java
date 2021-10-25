@@ -4,8 +4,11 @@ import java.sql.*;
 
 import javax.persistence.*;
 import javax.swing.JOptionPane;
-
 import connectionFiles.DBConnectorFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import accounts.User;
 @Entity
 @Table(name="inventory")
 
@@ -35,7 +38,7 @@ public class Inventory {
 	private Statement statement=null;
 	private ResultSet rslt=null;
 	private int rowsAffected=0;
-
+	private static final Logger Logger = LogManager.getLogger(Inventory.class);
 		
 	public Inventory()
 	{
@@ -98,9 +101,12 @@ public class Inventory {
 			{
 				JOptionPane.showMessageDialog(null, "Inventory record created","Inventory Creation",
 						JOptionPane.INFORMATION_MESSAGE);
+				Logger.info("Record with ID "+itemID+" was successfully created in the database");
 			}
 		} catch (SQLException e) {
 			System.err.println("Execption: "+e.getMessage());
+			Logger.error("Record with ID "+itemID+" was not added to the database");
+			Logger.trace(e.getMessage());
 		}
 	}
 	
@@ -119,7 +125,6 @@ public class Inventory {
 				String Status= rslt.getString("Status");
 				String DOR= rslt.getString("DateofRequirement");
 				int ID= rslt.getInt("ID");
-				
 				System.out.println("ID#: "+itemID+"\nItem Name: "+ItemName+"\nCategory: "+Category+"\nStatus: "+Status+"\nDate of Requirement"+DOR+"\nID: "+ID);
 			}
 			
@@ -140,10 +145,13 @@ public class Inventory {
 			{
 				JOptionPane.showMessageDialog(null, "Inventory record updated","Inventory Creation",
 						JOptionPane.INFORMATION_MESSAGE);
+				Logger.info(newName+" was successfully updated in the database");
 			}
 			
 		} catch (SQLException e) {
 			System.err.println("Error updating "+e.getMessage());
+			Logger.error(newName+" was not updated in the database");
+			Logger.trace(e.getMessage());
 		}
 	}
 	
@@ -159,10 +167,13 @@ public class Inventory {
 			{
 				JOptionPane.showMessageDialog(null, "Inventory record updated","Inventory Creation",
 						JOptionPane.INFORMATION_MESSAGE);
+				Logger.info(itemID+" was successfully updated in the database");
 			}
 			
 		} catch (SQLException e) {
 			System.err.println("Error updating "+e.getMessage());
+			Logger.error(newCategory+" was not updated in the database");
+			Logger.trace(e.getMessage());
 		}
 	}
 	
@@ -178,10 +189,13 @@ public class Inventory {
 			{
 				JOptionPane.showMessageDialog(null, "Inventory record updated","Inventory Creation",
 						JOptionPane.INFORMATION_MESSAGE);
+				Logger.info(itemID+" was successfully updated in the database");
 			}
 			
 		} catch (SQLException e) {
 			System.err.println("Error updating "+e.getMessage());
+			Logger.error(newCategory+" was not updated in the database");
+			Logger.trace(e.getMessage());
 		}
 	}
 	
@@ -197,10 +211,13 @@ public class Inventory {
 			{
 				JOptionPane.showMessageDialog(null, "Inventory record updated","Inventory Creation",
 						JOptionPane.INFORMATION_MESSAGE);
+				Logger.info(itemID+" was successfully updated in the database");
 			}
 			
 		} catch (SQLException e) {
 			System.err.println("Error updating "+e.getMessage());
+			Logger.error(newCategory+" was not updated in the database");
+			Logger.trace(e.getMessage());
 		}
 	}
 	
@@ -216,10 +233,13 @@ public class Inventory {
 			{
 				JOptionPane.showMessageDialog(null, "Inventory record updated","Inventory Creation",
 						JOptionPane.INFORMATION_MESSAGE);
+				Logger.info("Record"+itemID+" was successfully updated in the database");
 			}
 			
 		} catch (SQLException e) {
 			System.err.println("Error updating "+e.getMessage());
+			Logger.error(newCategory+" was not updated in the database");
+			Logger.trace(e.getMessage());
 		}
 	}
 	
@@ -233,11 +253,14 @@ public class Inventory {
 			{
 				JOptionPane.showMessageDialog(null, "Inventory record Deleted","Inventory Deletion",
 						JOptionPane.INFORMATION_MESSAGE);
+				Logger.info("Record with ID number "+id+" was successfully deleted in the database");
 			}
 					
 			
 		} catch (SQLException e) {
 			System.err.println("Error deleting "+e.getMessage());
+			Logger.error("Record with ID "+id+" was not deleted from the database");
+			Logger.trace(e.getMessage());
 		}
 	}
 	
