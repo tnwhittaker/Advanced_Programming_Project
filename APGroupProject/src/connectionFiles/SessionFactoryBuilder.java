@@ -3,7 +3,7 @@ package connectionFiles;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
-import models.Student;
+import accounts.User;
 
 public class SessionFactoryBuilder {
 	private static SessionFactory sessionfactory=null;
@@ -12,7 +12,7 @@ public class SessionFactoryBuilder {
 	public static SessionFactory getSessionFactory()
 	{
 		if (sessionfactory==null) {
-			sessionfactory=new Configuration().configure("hibernate.cfg.xml").addAnnotatedClass(Student.class).buildSessionFactory();
+			sessionfactory=new Configuration().configure("hibernate.cfg.xml").addAnnotatedClass(User.class).buildSessionFactory();
 		}
 		
 		
