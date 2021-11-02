@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.1.1
+-- version 5.0.4
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 18, 2021 at 01:14 AM
--- Server version: 10.4.19-MariaDB
--- PHP Version: 7.4.20
+-- Generation Time: Oct 18, 2021 at 08:11 AM
+-- Server version: 10.4.17-MariaDB
+-- PHP Version: 8.0.2
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,30 +18,8 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `groupprojectnew`
+-- Database: `groupproject`
 --
-CREATE DATABASE IF NOT EXISTS `groupprojectnew` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
-USE `groupprojectnew`;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `account`
---
-
-CREATE TABLE `account` (
-  `ID` int(5) NOT NULL,
-  `Password` varchar(10) NOT NULL,
-  `Name` varchar(30) NOT NULL,
-  `AccountType` char(1) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Dumping data for table `account`
---
-
-INSERT INTO `account` (`ID`, `Password`, `Name`, `AccountType`) VALUES
-(1001, 'Password', 'Whittaker', 'E');
 
 -- --------------------------------------------------------
 
@@ -91,7 +69,7 @@ CREATE TABLE `inventory` (
   `Category` varchar(15) NOT NULL,
   `Status` varchar(10) NOT NULL,
   `DateofRequirement` varchar(10) NOT NULL,
-  `ID` int(5) NOT NULL
+  `ID` int(10) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -99,7 +77,7 @@ CREATE TABLE `inventory` (
 --
 
 INSERT INTO `inventory` (`ItemID`, `ItemName`, `Category`, `Status`, `DateofRequirement`, `ID`) VALUES
-('ABC1', 'Shoes', 'Large', 'Online', '2021-10-17', 1001);
+('ABC1', 'Shoes', 'Large', 'Online', '2021-10-17', 123456789);
 
 -- --------------------------------------------------------
 
@@ -111,6 +89,13 @@ CREATE TABLE `rental_status` (
   `id` int(10) UNSIGNED NOT NULL,
   `status` varchar(25) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `rental_status`
+--
+
+INSERT INTO `rental_status` (`id`, `status`) VALUES
+(1, 'Pending');
 
 -- --------------------------------------------------------
 
@@ -147,12 +132,6 @@ CREATE TABLE `users` (
 --
 
 --
--- Indexes for table `account`
---
-ALTER TABLE `account`
-  ADD PRIMARY KEY (`ID`);
-
---
 -- Indexes for table `category`
 --
 ALTER TABLE `category`
@@ -177,8 +156,7 @@ ALTER TABLE `equipment`
 -- Indexes for table `inventory`
 --
 ALTER TABLE `inventory`
-  ADD PRIMARY KEY (`ItemID`),
-  ADD KEY `id` (`ID`) USING BTREE;
+  ADD PRIMARY KEY (`ItemID`);
 
 --
 -- Indexes for table `rental_status`
@@ -211,7 +189,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `category`
 --
 ALTER TABLE `category`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `company_inventory`
@@ -223,13 +201,13 @@ ALTER TABLE `company_inventory`
 -- AUTO_INCREMENT for table `equipment`
 --
 ALTER TABLE `equipment`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `rental_status`
 --
 ALTER TABLE `rental_status`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `transaction`
@@ -241,7 +219,7 @@ ALTER TABLE `transaction`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- Constraints for dumped tables
@@ -258,12 +236,6 @@ ALTER TABLE `company_inventory`
 --
 ALTER TABLE `equipment`
   ADD CONSTRAINT `equipment_category_id_foreign` FOREIGN KEY (`category_id`) REFERENCES `category` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `inventory`
---
-ALTER TABLE `inventory`
-  ADD CONSTRAINT `inventory_ibfk_1` FOREIGN KEY (`ID`) REFERENCES `account` (`ID`);
 
 --
 -- Constraints for table `transaction`
