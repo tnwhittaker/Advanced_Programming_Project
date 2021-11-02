@@ -11,6 +11,9 @@ import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import javax.swing.text.BadLocationException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -40,6 +43,7 @@ public class Application {
 	private JTextField custidtxt;
 	private JTextField passtxt;
 	private JTextField custIDtxt;
+	private static final Logger Logger = LogManager.getLogger(Application.class);
 
 	/**
 	 * Launch the application.
@@ -224,8 +228,9 @@ public class Application {
 		JButton submit = new JButton("Login");
 		submit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Customer c= new Customer();
+				User c= new User();
 				c.authenticateCustomer(custidtxt.getText(), passtxt.getText().toString());
+				Logger.info("Hello");
 			}
 		});
 		submit.setBounds(307, 274, 115, 29);

@@ -25,6 +25,9 @@ public class Equipment {
 	@Column(name="availability")
 	private short availability;
 	
+	@Column(name="eqID")
+	private String eqID;
+	
 	private static Connection connection=null;
 	private Statement stmt=null;
 	private ResultSet result=null;
@@ -37,6 +40,7 @@ public class Equipment {
 		name="";
 		categoryID=0;
 		availability=0;
+		eqID= "";
 		connection= DBConnectorFactory.getDatabaseConnection();
 	}
 
@@ -53,9 +57,18 @@ public class Equipment {
 	}
 
 	public void setName(String name) {
-		this.name = name;
+		this.name= name;
 	}
 
+	public String getEqID() {
+		return eqID;
+	}
+
+	public void setEqID(String eqID) {
+		this.eqID= eqID;
+	}
+
+	
 	public int getCategoryID() {
 		return categoryID;
 	}
@@ -72,9 +85,9 @@ public class Equipment {
 		this.availability = availability;
 	}
 	
-	public void createEquipment(String name, int catID, short availability)
+	public void createEquipment(String name, int catID, short availability,String eqID)
 	{
-String insertSql= "INSERT INTO groupproject.equipment(name, category_id, availability) VALUES ('"+ name +"','"+catID+"','"+availability+"')";   
+String insertSql= "INSERT INTO groupproject.equipment(name, category_id, availability,eqID) VALUES ('"+ name +"','"+catID+"','"+availability+"','"+eqID+"')";   
 		try {
 			stmt= connection.createStatement();
 			numRowsAffected=stmt.executeUpdate(insertSql);
@@ -104,7 +117,8 @@ String insertSql= "INSERT INTO groupproject.equipment(name, category_id, availab
 				String name=result.getString("name");
 				String catID=result.getString("category_id");
 				short availability=result.getShort("availability");
-				System.out.println("ID#: "+id+"\nName: "+name+"\nCategory ID:"+catID+"\navailability: "+availability);    
+				String eqID= result.getString("eqID");
+				System.out.println("ID#: "+id+"\nName: "+name+"\nCategory ID:"+catID+"\navailability: "+availability+"\nEquipment ID:"+eqID);    
 			}
 			
 		} catch (SQLException e) {
@@ -129,6 +143,29 @@ String insertSql= "INSERT INTO groupproject.equipment(name, category_id, availab
 		} catch (SQLException e) {
 			System.err.println("Error updating "+e.getMessage());
 			Logger.error(newName+" was not updated to the database");
+			Logger.trace(e.getMessage());
+			
+		}
+	}
+	
+	
+	public void updateEqID(int id, String newEQ)
+	{
+		String updateSQL="UPDATE equipment SET eqID='"+newEQ+"'WHERE id = "+id;
+		try {
+			stmt=connection.createStatement();
+			numRowsAffected= stmt.executeUpdate(updateSQL);
+			
+			if(numRowsAffected==1)
+			{
+				JOptionPane.showMessageDialog(null, "Equipement ID has been updated","Record Update",
+						JOptionPane.INFORMATION_MESSAGE);
+				Logger.info(newEQ+" was successfully updated in the database");
+			}
+			
+		} catch (SQLException e) {
+			System.err.println("Error updating "+e.getMessage());
+			Logger.error(newEQ+" was not updated to the database");
 			Logger.trace(e.getMessage());
 			
 		}
