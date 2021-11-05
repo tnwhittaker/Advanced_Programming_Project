@@ -194,7 +194,7 @@ public class Inventory {
 			
 		} catch (SQLException e) {
 			System.err.println("Error updating "+e.getMessage());
-			Logger.error(newCategory+" was not updated in the database");
+			Logger.error(itemID+" was not updated in the database");
 			Logger.trace(e.getMessage());
 		}
 	}
@@ -216,14 +216,14 @@ public class Inventory {
 			
 		} catch (SQLException e) {
 			System.err.println("Error updating "+e.getMessage());
-			Logger.error(newCategory+" was not updated in the database");
+			Logger.error(newDOF +" was not updated in the database");
 			Logger.trace(e.getMessage());
 		}
 	}
 	
 	public void updateID(String itemID, int newID)
 	{
-		String updateSQL="UPDATE inventory SET newID='"+newName+"'WHERE ItemID = "+itemID;
+		String updateSQL="UPDATE inventory SET newID='"+newID+"'WHERE ItemID = "+itemID;
 		
 		try {
 			statement=connection.createStatement();
@@ -238,7 +238,7 @@ public class Inventory {
 			
 		} catch (SQLException e) {
 			System.err.println("Error updating "+e.getMessage());
-			Logger.error(newCategory+" was not updated in the database");
+			Logger.error(itemID+" was not updated in the database");
 			Logger.trace(e.getMessage());
 		}
 	}
@@ -253,13 +253,13 @@ public class Inventory {
 			{
 				JOptionPane.showMessageDialog(null, "Inventory record Deleted","Inventory Deletion",
 						JOptionPane.INFORMATION_MESSAGE);
-				Logger.info("Record with ID number "+id+" was successfully deleted in the database");
+				Logger.info("Record with ID number "+ItemID+" was successfully deleted in the database");
 			}
 					
 			
 		} catch (SQLException e) {
 			System.err.println("Error deleting "+e.getMessage());
-			Logger.error("Record with ID "+id+" was not deleted from the database");
+			Logger.error("Record with ID "+ItemID+" was not deleted from the database");
 			Logger.trace(e.getMessage());
 		}
 	}

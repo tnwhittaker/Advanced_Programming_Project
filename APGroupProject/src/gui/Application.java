@@ -168,6 +168,16 @@ public class Application {
 		custIDtxt.setBounds(503, 142, 146, 26);
 		SignUp.add(custIDtxt);
 		custIDtxt.setColumns(10);
+		
+		JButton btnNewButton_1 = new JButton("Back");
+		btnNewButton_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				SignUp.setVisible(false);
+				Welcome_1.setVisible(true);
+			}
+		});
+		btnNewButton_1.setBounds(303, 333, 156, 29);
+		SignUp.add(btnNewButton_1);
 
 		
 		JLabel lblNewLabel = new JLabel("Welcome to Grizzly's Entertainment");
@@ -187,7 +197,7 @@ public class Application {
 				SignUp.setVisible(true);
 			}
 		});
-		btnNewButton.setBounds(53, 235, 115, 29);
+		btnNewButton.setBounds(247, 235, 115, 29);
 		Welcome_1.add(btnNewButton);
 		
 		JButton btnLoginIn = new JButton("Login");
@@ -197,7 +207,7 @@ public class Application {
 				Login.setVisible(true);
 			}
 		});
-		btnLoginIn.setBounds(480, 235, 115, 29);
+		btnLoginIn.setBounds(411, 235, 115, 29);
 		Welcome_1.add(btnLoginIn);
 		
 		
@@ -208,20 +218,20 @@ public class Application {
 		Login.add(Greeting);
 		
 		JLabel Custlbl = new JLabel("Customer ID:");
-		Custlbl.setBounds(76, 125, 108, 20);
+		Custlbl.setBounds(248, 125, 108, 20);
 		Login.add(Custlbl);
 		
 		JLabel Passlbl = new JLabel("Password:");
-		Passlbl.setBounds(76, 187, 108, 20);
+		Passlbl.setBounds(248, 176, 108, 20);
 		Login.add(Passlbl);
 		
 		custidtxt = new JTextField();
-		custidtxt.setBounds(199, 122, 146, 26);
+		custidtxt.setBounds(384, 122, 146, 26);
 		Login.add(custidtxt);
 		custidtxt.setColumns(10);
 		
 		passtxt = new JPasswordField();
-		passtxt.setBounds(199, 184, 146, 26);
+		passtxt.setBounds(384, 173, 146, 26);
 		Login.add(passtxt);
 		passtxt.setColumns(10);
 		
@@ -233,8 +243,39 @@ public class Application {
 				Logger.info("Hello");
 			}
 		});
-		submit.setBounds(307, 274, 115, 29);
+		submit.setBounds(384, 273, 115, 29);
 		Login.add(submit);
+		
+		JButton btnNewButton_2 = new JButton("Back");
+		btnNewButton_2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Login.setVisible(false);
+				Welcome_1.setVisible(true);
+			}
+		});
+		btnNewButton_2.setBounds(267, 273, 89, 29);
+		Login.add(btnNewButton_2);
+		
+		JPanel Dashboard = new JPanel();
+		frmGrizzlysEntertainment.getContentPane().add(Dashboard, "name_357296171531100");
+		Dashboard.setLayout(null);
+		
+		JButton btnNewButton_3 = new JButton("Equipment");
+		btnNewButton_3.setBounds(10, 184, 89, 23);
+		Dashboard.add(btnNewButton_3);
+		
+		JButton btnNewButton_4 = new JButton("Transaction");
+		btnNewButton_4.setBounds(10, 111, 89, 23);
+		Dashboard.add(btnNewButton_4);
+		
+		JButton btnNewButton_5 = new JButton("Profile");
+		btnNewButton_5.setBounds(10, 42, 89, 23);
+		Dashboard.add(btnNewButton_5);
+		
+		JInternalFrame internalFrame = new JInternalFrame("New JInternalFrame");
+		internalFrame.setBounds(109, 11, 662, 381);
+		Dashboard.add(internalFrame);
+		internalFrame.setVisible(true);
 		
 				
 		

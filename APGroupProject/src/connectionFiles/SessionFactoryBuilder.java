@@ -4,7 +4,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
 import accounts.User;
-import models.Student;
+
 
 public class SessionFactoryBuilder {
 	private static SessionFactory sessionfactory=null;

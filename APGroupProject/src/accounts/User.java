@@ -1,14 +1,10 @@
 package accounts;
 import connectionFiles.DBConnectorFactory;
-
 import java.sql.*;
 import javax.persistence.*;
 import javax.swing.JOptionPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import org.springframework.security.crypto.bcrypt.BCrypt;
-import java.util.UUID;  
 
 @Entity
 @Table(name="users")
@@ -45,34 +41,7 @@ public class User {
 	private int numRowsAffected=0;
 	private static final Logger Logger = LogManager.getLogger(User.class);
 	
-	public static void main(String[] args)  {
-		// TODO Auto-generated method stub
-		// User user = new User();
-		
-		Employee e2 = new Employee("test@test.com","123hello");//call instance to contact class
-		Customer c1 = new Customer("sumn@sumnelse.com","qwertyuiop99");
-		
-		Employee e4 = new Employee("zzzkillashangzzz@gmail.com","barofsamples");
-		
-		
-//		user.createEmployee(e2);
-		
-//		user.employeeLogin("58949b7d-c9e1-4b58-b214-649de4187174", "123hello");
-//		user.employeeLogin(e4, "samplebar!");
-		// user.readAllUsers();
-//		c1.readAll();//returns all records from database
-//		String test = e1.getHashedPassword();
-//		String testing = c1.getPassword();
-//		System.out.print(e2.getHashedPassword());
-//		System.out.print(e4.getStaffId());
-//		
-//		System.out.print(e2.getPassword());
-//		System.out.print(e2.getHashedPassword());
-//		System.out.print(BCrypt. checkpw("123hello", e2.getPassword()));
-		
-	}
-	
-	public User(String email, String password)
+	public User()
 	{
 		IDnum=0;
 		password="";
@@ -92,14 +61,6 @@ public class User {
 	public void setIDnum(int iDnum) {
 		IDnum = iDnum;
 	}
-	
-	// public String getEmail() {
-	// 	return email;
-	// }
-	
-	// public void setEmail(String email) {
-	// 	this.email = email;
-	// }
 
 	public String getPassword() {
 		return password;
@@ -196,7 +157,7 @@ String insertSql= "INSERT INTO users(first_name, last_name, email, staff_id, pas
 		}
 	}
 	
-	public void createEmployee(Employee employee) 
+	public void readAll()
 	{
 		String selectSQL="SELECT * FROM users WHERE 1=1";
 		
@@ -411,33 +372,6 @@ String insertSql= "INSERT INTO users(first_name, last_name, email, staff_id, pas
 			Logger.trace(e.getMessage());
 		}
 	}
-	
-//	public void employeeLogin(String staffId, String password) {
-	public void employeeLogin(Employee employee, String password) {
-		String selectSQL="SELECT password FROM users where staff_id = '" + employee.getStaffId() + "'";
-		try {
-			stmt=connection.createStatement();
-			result= stmt.executeQuery(selectSQL);
-			if(result.next())
-			{
-				if(BCrypt.checkpw(password, employee.getPassword())) {
-					JOptionPane.showMessageDialog(null, "User Fetched","User Login Successful",
-						JOptionPane.INFORMATION_MESSAGE);
-				}else {
-					JOptionPane.showMessageDialog(null, "Incorrect Credentials","User Login Failed",
-							JOptionPane.INFORMATION_MESSAGE);
-				}
-				
-			}else {
-				System.out.print("Didnt find user: "+ employee.getEmail());
-			}
-					
-			
-		} catch (SQLException e) {
-			System.err.println("Error deleting "+e.getMessage());
-		}
-	}
 
 }
-
 
