@@ -9,7 +9,10 @@ import java.awt.BorderLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.text.BadLocationException;
+import accounts.Equipment;
+import connectionFiles.DBConnectorFactory;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,6 +20,13 @@ import org.apache.logging.log4j.Logger;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyVetoException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 import javax.swing.JDesktopPane;
 import java.awt.Panel;
 import javax.swing.JInternalFrame;
@@ -43,7 +53,12 @@ public class Application {
 	private JTextField custidtxt;
 	private JTextField passtxt;
 	private JTextField custIDtxt;
+	private DefaultTableModel model;
 	private static final Logger Logger = LogManager.getLogger(Application.class);
+	private JTable table;
+	private static Connection connection=null;
+	private Statement stmt=null;
+	private ResultSet result=null;
 
 	/**
 	 * Launch the application.
@@ -73,8 +88,9 @@ public class Application {
 	 */
 	private void initialize() {
 		frmGrizzlysEntertainment = new JFrame();
+		frmGrizzlysEntertainment.setResizable(false);
 		frmGrizzlysEntertainment.setTitle("Grizzly's Entertainment- Customer");
-		frmGrizzlysEntertainment.setBounds(100, 100, 797, 442);
+		frmGrizzlysEntertainment.setBounds(100, 100, 871, 498);
 		frmGrizzlysEntertainment.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmGrizzlysEntertainment.getContentPane().setLayout(new CardLayout(0, 0));
 		
@@ -89,6 +105,10 @@ public class Application {
 		JPanel Login = new JPanel();
 		frmGrizzlysEntertainment.getContentPane().add(Login, "name_353004344875400");
 		Login.setLayout(null);
+		
+		JPanel Dashboard = new JPanel();
+		frmGrizzlysEntertainment.getContentPane().add(Dashboard, "name_74116013573800");
+		Dashboard.setLayout(null);
 		
 		JLabel Welcome = new JLabel("Welcome new user!");
 		Welcome.setFont(new Font("Sylfaen", Font.BOLD, 24));
@@ -172,12 +192,12 @@ public class Application {
 		
 		JLabel lblNewLabel = new JLabel("Welcome to Grizzly's Entertainment");
 		lblNewLabel.setFont(new Font("Sylfaen", Font.BOLD, 24));
-		lblNewLabel.setBounds(166, 30, 429, 46);
+		lblNewLabel.setBounds(199, 30, 429, 46);
 		Welcome_1.add(lblNewLabel);
 		
 		JLabel lblPleaseSelectAn = new JLabel("Please select an option below");
 		lblPleaseSelectAn.setFont(new Font("Sylfaen", Font.BOLD, 24));
-		lblPleaseSelectAn.setBounds(207, 106, 327, 46);
+		lblPleaseSelectAn.setBounds(234, 107, 327, 46);
 		Welcome_1.add(lblPleaseSelectAn);
 		
 		JButton btnNewButton = new JButton("Sign Up");
@@ -187,7 +207,7 @@ public class Application {
 				SignUp.setVisible(true);
 			}
 		});
-		btnNewButton.setBounds(53, 235, 115, 29);
+		btnNewButton.setBounds(248, 235, 115, 29);
 		Welcome_1.add(btnNewButton);
 		
 		JButton btnLoginIn = new JButton("Login");
@@ -197,7 +217,7 @@ public class Application {
 				Login.setVisible(true);
 			}
 		});
-		btnLoginIn.setBounds(480, 235, 115, 29);
+		btnLoginIn.setBounds(446, 235, 115, 29);
 		Welcome_1.add(btnLoginIn);
 		
 		
@@ -229,12 +249,178 @@ public class Application {
 		submit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				User c= new User();
-				c.authenticateCustomer(custidtxt.getText(), passtxt.getText().toString());
+				if(c.authenticateCustomer(custidtxt.getText(), passtxt.getText().toString())) {
+					Dashboard.setVisible(true);
+					Login.setVisible(false);
+				}
+				
 				Logger.info("Hello");
 			}
 		});
 		submit.setBounds(307, 274, 115, 29);
 		Login.add(submit);
+		
+		
+		
+		JLabel Description = new JLabel("What would you like to do?");
+		Description.setBounds(303, 16, 194, 20);
+		Dashboard.add(Description);
+		
+		JLayeredPane layeredPane = new JLayeredPane();
+		layeredPane.setBounds(235, 52, 612, 398);
+		Dashboard.add(layeredPane);
+		layeredPane.setLayout(null);
+		
+		JInternalFrame Request = new JInternalFrame("Request Equipment");
+		Request.setBounds(0, 0, 612, 398);
+		layeredPane.setLayer(Request, 1);
+		
+		layeredPane.add(Request);
+		Request.getContentPane().setLayout(null);
+		
+		JLabel lblNewLabel_1 = new JLabel("Welcome, choose a device below to rent");
+		lblNewLabel_1.setBounds(220, 11, 200, 14);
+		Request.getContentPane().add(lblNewLabel_1);
+		
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setBounds(165, 81, 402, 206);
+		Request.getContentPane().add(scrollPane);
+		
+		
+		
+		table = new JTable();
+		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		table.setColumnSelectionAllowed(true);
+		table.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				String check=(String)table.getModel().getValueAt(table.getSelectedRow(), 1);
+				if (check.contains("2")) {
+					JOptionPane.showMessageDialog(null, "Sorry, this device has already been rented","Error",JOptionPane.INFORMATION_MESSAGE);
+				}
+				else if(check.contains("1")) {
+					RentDate rent=new RentDate();
+					rent.displayWindow();
+					
+				}
+				
+			}
+		});
+		scrollPane.setViewportView(table);
+		table.setModel(new DefaultTableModel(
+			new Object[][] {
+			},
+			new String[] {
+				"Name", "Availability"
+			}
+		));
+		table.getColumnModel().getColumn(0).setResizable(false);
+		table.getColumnModel().getColumn(1).setResizable(false);
+		
+		
+		
+		JLabel choice = new JLabel("Select Category");
+		choice.setBounds(47, 81, 100, 14);
+		Request.getContentPane().add(choice);
+		
+		JComboBox comboBox = new JComboBox();
+		comboBox.setModel(new DefaultComboBoxModel(new String[] {"Staging", "Lighting", "Power", "Sound"}));
+		comboBox.setBounds(47, 105, 83, 22);
+		Request.getContentPane().add(comboBox);
+		
+		JButton search = new JButton("Search");
+		search.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					table.setModel(new DefaultTableModel(null,new String[] {"Name","Availability"}));
+					connection= DBConnectorFactory.getDatabaseConnection();
+					stmt= connection.createStatement();
+					char quote='"';
+					String cat= quote+(String)comboBox.getSelectedItem()+quote;
+					String searchSQL= "SELECT * FROM equipment WHERE category="+cat;
+					result= stmt.executeQuery(searchSQL);
+					while(result.next()) {
+						String Name= result.getString("name");
+						String Availability= result.getString("availability");
+						String jtbledata[]= {Name,Availability};
+						DefaultTableModel tblModel= (DefaultTableModel)table.getModel();
+						tblModel.addRow(jtbledata);
+					}
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+				
+				
+			}
+		});
+		search.setBounds(47, 162, 83, 23);
+		Request.getContentPane().add(search);
+		
+		JInternalFrame ViewAll = new JInternalFrame("View All Transactions");
+		ViewAll.setBounds(0, 0, 612, 398);
+		layeredPane.setLayer(ViewAll, 0);
+		ViewAll.setVisible(false);
+		layeredPane.add(ViewAll);
+		
+		JInternalFrame View = new JInternalFrame("View a Transaction");
+		View.setBounds(0, 0, 612, 398);
+		layeredPane.setLayer(View, 0);
+		View.setVisible(false);
+		layeredPane.add(View);
+		
+		JButton rentButton = new JButton("Rent Equipment");
+		rentButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					Request.setMaximum(true);
+					ViewAll.moveToBack();
+					View.moveToBack();
+				} catch (PropertyVetoException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		rentButton.setBounds(26, 88, 133, 23);
+		Dashboard.add(rentButton);
+		
+		JButton viewAll = new JButton("View All Transaction");
+		viewAll.addActionListener(new ActionListener(){
+		public void actionPerformed(ActionEvent arg0) {
+			try {
+				ViewAll.moveToFront();
+				ViewAll.setMaximum(true);
+				Request.moveToBack();
+				View.moveToBack();
+			} catch (PropertyVetoException e) {
+				e.printStackTrace();
+			}
+		}
+	});
+		viewAll.setBounds(26, 164, 133, 23);
+		Dashboard.add(viewAll);
+		
+		JButton viewButton = new JButton("View A Transaction");
+		viewButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					View.moveToFront();
+					View.setMaximum(true);
+					ViewAll.moveToBack();
+					Request.moveToBack();
+				} catch (PropertyVetoException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		viewButton.setBounds(26, 230, 133, 23);
+		Dashboard.add(viewButton);
+		
+		JButton signOut = new JButton("Sign Out");
+		signOut.setBounds(26, 297, 133, 23);
+		Dashboard.add(signOut);
+		View.setVisible(true);
+		ViewAll.setVisible(true);
+		Request.setVisible(true);
 		
 				
 		
