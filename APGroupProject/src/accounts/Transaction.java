@@ -21,7 +21,7 @@ public class Transaction {
 	private String eID;
 	
 	@Column(name="date")
-	private Date date;
+	private String date;
 	
 	
 	@Column(name="cost")
@@ -57,11 +57,11 @@ public class Transaction {
 		this.eID = eID;
 	}
 
-	public Date getDate() {
+	public String getDate() {
 		return date;
 	}
 
-	public void setDate(Date date) {
+	public void setDate(String date) {
 		this.date = date;
 	}
 
@@ -73,9 +73,9 @@ public class Transaction {
 		this.cost = cost;
 	}
 	
-	public void create(int eqID, Date date, int cost)
+	public void create(int eqID, String date, int cost,int CiD, String custID)
 	{
-		String insertSql= "INSERT INTO transaction(eqID, date,cost) VALUES ('"+eqID+"','"+date+"','"+cost+"')";
+		String insertSql= "INSERT INTO transaction(equiment_id, date,cost,customer_id,custID) VALUES ('"+eqID+"','"+date+"','"+cost+"','"+CiD+"','"+custID+"')";
 		try {
 			statement= connection.createStatement();
 			rowsAffected=statement.executeUpdate(insertSql);
@@ -103,7 +103,7 @@ public class Transaction {
 			{
 				int ID=rslt.getInt("ID");
 				int eqID= rslt.getInt("ID");
-				Date date= rslt.getDate("date");
+				String date= rslt.getString("date");
 				int cost=rslt.getInt("cost");
 				
 				System.out.println("ID#: "+ID+"\nEquipment ID: "+eqID+"\nDate: "+date+"\nCost: "+cost);
@@ -136,7 +136,7 @@ public class Transaction {
 		}
 	}
 	
-	public void updateDate(int ID, Date newDate)
+	public void updateDate(int ID, String newDate)
 	{
 		String updateSQL="UPDATE transaction SET date='"+newDate+"'WHERE id = "+ID;
 		

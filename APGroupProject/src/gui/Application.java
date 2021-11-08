@@ -43,8 +43,8 @@ import javax.swing.JTextField;
 import javax.swing.JPasswordField;
 import accounts.*;
 
-public class Application {
-
+public class Application{
+	private static final long serialVersionUID = 1L;
 	private JFrame frmGrizzlysEntertainment;
 	private JTextField FNametxt;
 	private JTextField LNametxt;
@@ -59,10 +59,11 @@ public class Application {
 	private static Connection connection=null;
 	private Statement stmt=null;
 	private ResultSet result=null;
-
-	/**
-	 * Launch the application.
-	 */
+	JComboBox comboBox = new JComboBox();
+	User c= new User();
+	RentDate rent=new RentDate();
+	
+	
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -76,16 +77,40 @@ public class Application {
 		});
 	}
 
-	/**
-	 * Create the application.
-	 */
 	public Application() {
 		initialize();
 	}
-
-	/**
-	 * Initialize the contents of the frame.
-	 */
+	
+	
+	public void readOne(String details)
+	{
+		String selectSQL="SELECT * FROM users WHERE customer_id="+details;
+		String id, fname,lname,email,password,custID,staffID;
+		try {
+			char quote='"';
+			String cat= quote+(String)comboBox.getSelectedItem()+quote;
+			String searchSQL= "SELECT * FROM equipment WHERE category="+cat;
+			stmt=connection.createStatement();
+			result= stmt.executeQuery(selectSQL);
+			
+			while(result.next())
+			{
+				id= result.getString("id");
+				fname=result.getString("first_name");
+				lname=result.getString("last_name");
+				email=result.getString("email");
+				password=result.getString("password");
+				custID=result.getString("customer_id");
+				staffID=result.getString("staff_id");
+				short type= result.getShort("type");
+			}
+			
+		} catch (SQLException e) {
+			System.err.println("Error selecting all "+e.getMessage());
+		}
+	}
+	
+	
 	private void initialize() {
 		frmGrizzlysEntertainment = new JFrame();
 		frmGrizzlysEntertainment.setResizable(false);
@@ -248,7 +273,7 @@ public class Application {
 		JButton submit = new JButton("Login");
 		submit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				User c= new User();
+				
 				if(c.authenticateCustomer(custidtxt.getText(), passtxt.getText().toString())) {
 					Dashboard.setVisible(true);
 					Login.setVisible(false);
@@ -298,24 +323,28 @@ public class Application {
 				if (check.contains("2")) {
 					JOptionPane.showMessageDialog(null, "Sorry, this device has already been rented","Error",JOptionPane.INFORMATION_MESSAGE);
 				}
-				else if(check.contains("1")) {
-					RentDate rent=new RentDate();
+				else{
 					rent.displayWindow();
-					
+					rent.eqval= getEquipmentID();
+					rent.getValues(getEquipmentID(),getDBID(), getcustID());
 				}
+				
 				
 			}
 		});
+		
+		
 		scrollPane.setViewportView(table);
 		table.setModel(new DefaultTableModel(
 			new Object[][] {
 			},
 			new String[] {
-				"Name", "Availability"
+				"Name", "Availability", "Equipment ID"
 			}
 		));
 		table.getColumnModel().getColumn(0).setResizable(false);
 		table.getColumnModel().getColumn(1).setResizable(false);
+		table.getColumnModel().getColumn(2).setResizable(false);
 		
 		
 		
@@ -323,7 +352,7 @@ public class Application {
 		choice.setBounds(47, 81, 100, 14);
 		Request.getContentPane().add(choice);
 		
-		JComboBox comboBox = new JComboBox();
+		
 		comboBox.setModel(new DefaultComboBoxModel(new String[] {"Staging", "Lighting", "Power", "Sound"}));
 		comboBox.setBounds(47, 105, 83, 22);
 		Request.getContentPane().add(comboBox);
@@ -332,7 +361,7 @@ public class Application {
 		search.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					table.setModel(new DefaultTableModel(null,new String[] {"Name","Availability"}));
+					table.setModel(new DefaultTableModel(null,new String[] {"Name","Availability","Equipment ID"}));
 					connection= DBConnectorFactory.getDatabaseConnection();
 					stmt= connection.createStatement();
 					char quote='"';
@@ -342,7 +371,8 @@ public class Application {
 					while(result.next()) {
 						String Name= result.getString("name");
 						String Availability= result.getString("availability");
-						String jtbledata[]= {Name,Availability};
+						String EID=result.getString("id");
+						String jtbledata[]= {Name,Availability,EID};
 						DefaultTableModel tblModel= (DefaultTableModel)table.getModel();
 						tblModel.addRow(jtbledata);
 					}
@@ -355,6 +385,16 @@ public class Application {
 		});
 		search.setBounds(47, 162, 83, 23);
 		Request.getContentPane().add(search);
+		
+		JButton select = new JButton("Select");
+		select.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				Transaction t= new Transaction();
+				t.create(getEquipmentID(), rent.getDate(), 0, getDBID(), getcustID());
+			}
+		});
+		select.setBounds(478, 298, 89, 23);
+		Request.getContentPane().add(select);
 		
 		JInternalFrame ViewAll = new JInternalFrame("View All Transactions");
 		ViewAll.setBounds(0, 0, 612, 398);
@@ -422,7 +462,21 @@ public class Application {
 		ViewAll.setVisible(true);
 		Request.setVisible(true);
 		
-				
-		
+	}
+	
+	public int getEquipmentID() {
+		return Integer.valueOf((String)table.getModel().getValueAt(table.getSelectedRow(), 2)); 
+	}
+	
+	public String getDate() {
+		return rent.getDate(); 
+	}
+	
+	public int getDBID() {
+		return Integer.valueOf(c.getCustID(custidtxt.getText())); 
+	}
+	
+	public String getcustID() {
+		return custidtxt.getText(); 
 	}
 }

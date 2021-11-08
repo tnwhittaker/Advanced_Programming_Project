@@ -104,6 +104,8 @@ String insertSql= "INSERT INTO groupproject.equipment(name, category_id, availab
 		}
 	}
 	
+	
+	
 	public void readAll()
 	{
 		String selectSQL="SELECT * FROM equipment WHERE 1=1";
@@ -126,6 +128,22 @@ String insertSql= "INSERT INTO groupproject.equipment(name, category_id, availab
 		}
 	}
 	
+	public void searchTable(String cat) {
+		connection= DBConnectorFactory.getDatabaseConnection();
+		String searchSQL= "SELECT * FROM equipment WHERE category_id="+cat;
+		try {
+			stmt= connection.createStatement();
+			result= stmt.executeQuery(searchSQL);
+			while(result.next()) {
+				String Name= result.getString("name");
+				String Availability= result.getString("availability");
+				String jtbledata[]= {Name,Availability};
+				
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
 	public void updateNAME(int id, String newName)
 	{
 		String updateSQL="UPDATE equipment SET name='"+newName+"'WHERE id = "+id;
@@ -211,6 +229,8 @@ String insertSql= "INSERT INTO groupproject.equipment(name, category_id, availab
 			Logger.trace(e.getMessage());
 		}
 	}
+	
+	
 	
 	public void delete(int id)
 	{
