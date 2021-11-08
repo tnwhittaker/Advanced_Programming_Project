@@ -9,7 +9,10 @@ import java.awt.BorderLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.text.BadLocationException;
+import accounts.Equipment;
+import connectionFiles.DBConnectorFactory;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,6 +20,13 @@ import org.apache.logging.log4j.Logger;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyVetoException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 import javax.swing.JDesktopPane;
 import java.awt.Panel;
 import javax.swing.JInternalFrame;
@@ -43,7 +53,12 @@ public class Application {
 	private JTextField custidtxt;
 	private JTextField passtxt;
 	private JTextField custIDtxt;
+	private DefaultTableModel model;
 	private static final Logger Logger = LogManager.getLogger(Application.class);
+	private JTable table;
+	private static Connection connection=null;
+	private Statement stmt=null;
+	private ResultSet result=null;
 
 	/**
 	 * Launch the application.
@@ -73,8 +88,9 @@ public class Application {
 	 */
 	private void initialize() {
 		frmGrizzlysEntertainment = new JFrame();
+		frmGrizzlysEntertainment.setResizable(false);
 		frmGrizzlysEntertainment.setTitle("Grizzly's Entertainment- Customer");
-		frmGrizzlysEntertainment.setBounds(100, 100, 797, 442);
+		frmGrizzlysEntertainment.setBounds(100, 100, 871, 498);
 		frmGrizzlysEntertainment.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmGrizzlysEntertainment.getContentPane().setLayout(new CardLayout(0, 0));
 		
@@ -89,6 +105,10 @@ public class Application {
 		JPanel Login = new JPanel();
 		frmGrizzlysEntertainment.getContentPane().add(Login, "name_353004344875400");
 		Login.setLayout(null);
+		
+		JPanel Dashboard = new JPanel();
+		frmGrizzlysEntertainment.getContentPane().add(Dashboard, "name_74116013573800");
+		Dashboard.setLayout(null);
 		
 		JLabel Welcome = new JLabel("Welcome new user!");
 		Welcome.setFont(new Font("Sylfaen", Font.BOLD, 24));
@@ -182,12 +202,12 @@ public class Application {
 		
 		JLabel lblNewLabel = new JLabel("Welcome to Grizzly's Entertainment");
 		lblNewLabel.setFont(new Font("Sylfaen", Font.BOLD, 24));
-		lblNewLabel.setBounds(166, 30, 429, 46);
+		lblNewLabel.setBounds(199, 30, 429, 46);
 		Welcome_1.add(lblNewLabel);
 		
 		JLabel lblPleaseSelectAn = new JLabel("Please select an option below");
 		lblPleaseSelectAn.setFont(new Font("Sylfaen", Font.BOLD, 24));
-		lblPleaseSelectAn.setBounds(207, 106, 327, 46);
+		lblPleaseSelectAn.setBounds(234, 107, 327, 46);
 		Welcome_1.add(lblPleaseSelectAn);
 		
 		JButton btnNewButton = new JButton("Sign Up");
@@ -197,7 +217,7 @@ public class Application {
 				SignUp.setVisible(true);
 			}
 		});
-		btnNewButton.setBounds(247, 235, 115, 29);
+		btnNewButton.setBounds(248, 235, 115, 29);
 		Welcome_1.add(btnNewButton);
 		
 		JButton btnLoginIn = new JButton("Login");
@@ -239,7 +259,11 @@ public class Application {
 		submit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				User c= new User();
-				c.authenticateCustomer(custidtxt.getText(), passtxt.getText().toString());
+				if(c.authenticateCustomer(custidtxt.getText(), passtxt.getText().toString())) {
+					Dashboard.setVisible(true);
+					Login.setVisible(false);
+				}
+				
 				Logger.info("Hello");
 			}
 		});
