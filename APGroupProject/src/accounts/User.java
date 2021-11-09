@@ -182,7 +182,9 @@ String insertSql= "INSERT INTO users(first_name, last_name, email, staff_id, pas
 		}
 	}
 	
-	public void authenticateCustomer(String id, String pass)
+	
+	
+	public Boolean authenticateCustomer(String id, String pass)
 	{
 		String validateSQL="SELECT * FROM users WHERE customer_id='"+id+"'and password='"+pass+"'";
 		
@@ -191,18 +193,47 @@ String insertSql= "INSERT INTO users(first_name, last_name, email, staff_id, pas
 			result= stmt.executeQuery(validateSQL);
 			if(result.next())
 			{
-				JOptionPane.showMessageDialog(null, id+ "has logged in sucessfully");
+				JOptionPane.showMessageDialog(null, id+ " has logged in sucessfully");
 				Logger.info("Customer with ID "+id+" logged into their account");
+				return true;
 			
 			}
 			else
 			{
 				JOptionPane.showMessageDialog(null, id+ " entered something wrong");
+				return false;
 			}
 			
 		} catch (SQLException e) {
 			System.err.println("Error selecting all "+e.getMessage());
 		}
+		return true;
+	}
+	
+	public String getCustID(String cID) {
+		//char quote='"';
+		//cID=quote+cID+quote;
+		String validateSQL="SELECT * FROM users WHERE customer_id='"+cID+"'";
+		
+		try {
+			stmt=connection.createStatement();
+			result= stmt.executeQuery(validateSQL);
+			if(result.next())
+			{
+				String cid;
+				cid= result.getString("id");
+				return cid;
+			
+			}
+			else
+			{
+				System.out.println("Hello");
+			}
+			
+		} catch (SQLException e) {
+			System.err.println("Error selecting all "+e.getMessage());
+		}
+		return " ";
 	}
 	
 	public void updateFNAME(String id, String newFName)
