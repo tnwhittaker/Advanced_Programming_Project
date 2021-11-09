@@ -13,7 +13,7 @@ public class Test {
 	@SuppressWarnings("deprecation")
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		//Equipment d= new Equipment();
+		Equipment d= new Equipment();
 		//d.createEquipment("Stereo", 1234567890, (short)5);
 		//Logger.info("Something");
 		//d.delete(10);
@@ -28,6 +28,9 @@ public class Test {
 		//r.readAll();
 		//CompanyInventory c= new CompanyInventory();
 		//c.create(123456789, new Date(211,10,18));
+		
+//		d.getAllAvailable();
+//		d.getAllUnavailable();
 		
 		Logger.info("Hello");
 		

@@ -27,6 +27,7 @@ public class Equipment {
 	
 	@Column(name="eqID")
 	private String eqID;
+
 	
 	private static Connection connection=null;
 	private Statement stmt=null;
@@ -39,7 +40,7 @@ public class Equipment {
 		IDnum=0;
 		name="";
 		categoryID=0;
-		availability=0;
+		availability=1;
 		eqID= "";
 		connection= DBConnectorFactory.getDatabaseConnection();
 	}
@@ -230,6 +231,50 @@ String insertSql= "INSERT INTO groupproject.equipment(name, category_id, availab
 			System.err.println("Error deleting "+e.getMessage());
 			Logger.error("Record with ID "+id+" was not deleted from the database");
 			Logger.trace(e.getMessage());
+		}
+	}
+	
+	public void getAllAvailable() {
+		String selectSQL="SELECT * FROM equipment WHERE availability=1";
+		
+		try {
+			stmt=connection.createStatement();
+			result= stmt.executeQuery(selectSQL);
+			while(result.next())
+			{
+				String id= result.getString("id");
+				String name=result.getString("name");
+				String catID=result.getString("category_id");
+				short availability=result.getShort("availability");
+				String eqID= result.getString("eqID");
+				System.out.println("ID#: "+id+"\nName: "+name+"\nCategory ID:"+catID+"\navailability: "+availability+"\nEquipment ID:"+eqID);   
+				System.out.println("\n\n");
+			}
+			
+		} catch (SQLException e) {
+			System.err.println("Error selecting all "+e.getMessage());
+		}
+	}
+	
+	public void getAllUnavailable() {
+		String selectSQL="SELECT * FROM equipment WHERE availability=2";
+		
+		try {
+			stmt=connection.createStatement();
+			result= stmt.executeQuery(selectSQL);
+			while(result.next())
+			{
+				String id= result.getString("id");
+				String name=result.getString("name");
+				String catID=result.getString("category_id");
+				short availability=result.getShort("availability");
+				String eqID= result.getString("eqID");
+				System.out.println("ID#: "+id+"\nName: "+name+"\nCategory ID:"+catID+"\navailability: "+availability+"\nEquipment ID:"+eqID); 
+				System.out.println("\n\n");
+			}
+			
+		} catch (SQLException e) {
+			System.err.println("Error selecting all "+e.getMessage());
 		}
 	}
 

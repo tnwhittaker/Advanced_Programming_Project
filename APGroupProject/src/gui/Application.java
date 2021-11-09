@@ -22,10 +22,12 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyVetoException;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 
 import javax.swing.JDesktopPane;
 import java.awt.Panel;
@@ -42,6 +44,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JTextField;
 import javax.swing.JPasswordField;
 import accounts.*;
+import javax.swing.border.LineBorder;
 
 public class Application {
 
@@ -59,6 +62,7 @@ public class Application {
 	private static Connection connection=null;
 	private Statement stmt=null;
 	private ResultSet result=null;
+	private JTable transactionTable;
 
 	/**
 	 * Launch the application.
@@ -188,16 +192,26 @@ public class Application {
 		custIDtxt.setBounds(503, 142, 146, 26);
 		SignUp.add(custIDtxt);
 		custIDtxt.setColumns(10);
+		
+		JButton btnNewButton_1 = new JButton("Back");
+		btnNewButton_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				SignUp.setVisible(false);
+				Welcome_1.setVisible(true);
+			}
+		});
+		btnNewButton_1.setBounds(303, 333, 156, 29);
+		SignUp.add(btnNewButton_1);
 
 		
 		JLabel lblNewLabel = new JLabel("Welcome to Grizzly's Entertainment");
 		lblNewLabel.setFont(new Font("Sylfaen", Font.BOLD, 24));
-		lblNewLabel.setBounds(199, 30, 429, 46);
+		lblNewLabel.setBounds(207, 35, 429, 46);
 		Welcome_1.add(lblNewLabel);
 		
 		JLabel lblPleaseSelectAn = new JLabel("Please select an option below");
 		lblPleaseSelectAn.setFont(new Font("Sylfaen", Font.BOLD, 24));
-		lblPleaseSelectAn.setBounds(234, 107, 327, 46);
+		lblPleaseSelectAn.setBounds(260, 108, 327, 46);
 		Welcome_1.add(lblPleaseSelectAn);
 		
 		JButton btnNewButton = new JButton("Sign Up");
@@ -207,7 +221,7 @@ public class Application {
 				SignUp.setVisible(true);
 			}
 		});
-		btnNewButton.setBounds(248, 235, 115, 29);
+		btnNewButton.setBounds(280, 235, 115, 29);
 		Welcome_1.add(btnNewButton);
 		
 		JButton btnLoginIn = new JButton("Login");
@@ -217,7 +231,7 @@ public class Application {
 				Login.setVisible(true);
 			}
 		});
-		btnLoginIn.setBounds(446, 235, 115, 29);
+		btnLoginIn.setBounds(451, 235, 115, 29);
 		Welcome_1.add(btnLoginIn);
 		
 		
@@ -228,37 +242,59 @@ public class Application {
 		Login.add(Greeting);
 		
 		JLabel Custlbl = new JLabel("Customer ID:");
-		Custlbl.setBounds(76, 125, 108, 20);
+		Custlbl.setBounds(248, 125, 108, 20);
 		Login.add(Custlbl);
 		
 		JLabel Passlbl = new JLabel("Password:");
-		Passlbl.setBounds(76, 187, 108, 20);
+		Passlbl.setBounds(248, 176, 108, 20);
 		Login.add(Passlbl);
 		
 		custidtxt = new JTextField();
-		custidtxt.setBounds(199, 122, 146, 26);
+		custidtxt.setBounds(384, 122, 146, 26);
 		Login.add(custidtxt);
 		custidtxt.setColumns(10);
 		
 		passtxt = new JPasswordField();
-		passtxt.setBounds(199, 184, 146, 26);
+		passtxt.setBounds(384, 173, 146, 26);
 		Login.add(passtxt);
 		passtxt.setColumns(10);
 		
-		JButton submit = new JButton("Login");
+		JButton submit = new JButton("Login");//Login Button to access customer dashboard
+		
+		//Login action that is executed when pressed to authenticate user
 		submit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				User c= new User();
 				if(c.authenticateCustomer(custidtxt.getText(), passtxt.getText().toString())) {
+					Logger.info("Login Successful. Correct credentials were entered");
 					Dashboard.setVisible(true);
 					Login.setVisible(false);
+				}else {
+					Dashboard.setVisible(false);
+					Login.setVisible(true );
+					Logger.info("Login Failed due to incorrect credentials");
 				}
 				
+				
+			}
+		});
+		
+		submit.setBounds(384, 273, 115, 29);//position submit/login button on frame
+		Login.add(submit);//add login button to frame 
+		
+		//Back button to allow Easy and convenient user experience moving to and from pages
+		JButton backButton = new JButton("Back");
+		backButton.setBounds(241, 273, 115, 29);
+		backButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Welcome_1.setVisible(true);
+				Login.setVisible(false);
 				Logger.info("Hello");
 			}
 		});
-		submit.setBounds(307, 274, 115, 29);
-		Login.add(submit);
+		
+		//add back button to login frame
+		Login.add(backButton);
 		
 		
 		
@@ -273,7 +309,7 @@ public class Application {
 		
 		JInternalFrame Request = new JInternalFrame("Request Equipment");
 		Request.setBounds(0, 0, 612, 398);
-		layeredPane.setLayer(Request, 1);
+		layeredPane.setLayer(Request, 3);
 		
 		layeredPane.add(Request);
 		Request.getContentPane().setLayout(null);
@@ -299,7 +335,7 @@ public class Application {
 					JOptionPane.showMessageDialog(null, "Sorry, this device has already been rented","Error",JOptionPane.INFORMATION_MESSAGE);
 				}
 				else if(check.contains("1")) {
-					RentDate rent=new RentDate();
+					RentDate rent = new RentDate();
 					rent.displayWindow();
 					
 				}
@@ -331,21 +367,35 @@ public class Application {
 		JButton search = new JButton("Search");
 		search.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				try {
+				try {  
 					table.setModel(new DefaultTableModel(null,new String[] {"Name","Availability"}));
 					connection= DBConnectorFactory.getDatabaseConnection();
 					stmt= connection.createStatement();
-					char quote='"';
+					String quote="'";
 					String cat= quote+(String)comboBox.getSelectedItem()+quote;
-					String searchSQL= "SELECT * FROM equipment WHERE category="+cat;
+					String catID= "SELECT id FROM category WHERE name="+cat;
+					ResultSet catIdResult = stmt.executeQuery(catID);
+					catIdResult.next();
+					String searchSQL= "SELECT * FROM equipment WHERE category_id="+catIdResult.getInt("id");
 					result= stmt.executeQuery(searchSQL);
 					while(result.next()) {
-						String Name= result.getString("name");
-						String Availability= result.getString("availability");
-						String jtbledata[]= {Name,Availability};
-						DefaultTableModel tblModel= (DefaultTableModel)table.getModel();
-						tblModel.addRow(jtbledata);
+						String Name= result.getString("name"); 
+						if(result.getInt("availability") == 1) {
+							String Availability = "Available";
+							String jtbledata[]= {Name,Availability};
+							DefaultTableModel tblModel= (DefaultTableModel)table.getModel();
+							tblModel.addRow(jtbledata);
+						}else {
+							String Availability = "Unavailable";
+							String jtbledata[]= {Name,Availability};
+							DefaultTableModel tblModel= (DefaultTableModel)table.getModel();
+							tblModel.addRow(jtbledata);
+						}
+						
+						
 					}
+
+					
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
@@ -356,15 +406,44 @@ public class Application {
 		search.setBounds(47, 162, 83, 23);
 		Request.getContentPane().add(search);
 		
+		
+		
 		JInternalFrame ViewAll = new JInternalFrame("View All Transactions");
 		ViewAll.setBounds(0, 0, 612, 398);
-		layeredPane.setLayer(ViewAll, 0);
+		layeredPane.setLayer(ViewAll, 2);
 		ViewAll.setVisible(false);
 		layeredPane.add(ViewAll);
 		
+		JScrollPane scrollPane1 = new JScrollPane();
+		scrollPane1.setBounds(165, 81, 402, 206);
+		ViewAll.getContentPane().add(scrollPane1);
+		
+		transactionTable = new JTable();
+		
+		transactionTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		transactionTable.setColumnSelectionAllowed(true);
+		
+		scrollPane1.setViewportView(transactionTable);
+		
+		
+		transactionTable.setModel(new DefaultTableModel(
+			new Object[][] {
+			
+			},
+			new String[] {
+				"Equipment Name", "Category", "Date", "Cost"
+			}
+		));
+		transactionTable.getColumnModel().getColumn(0).setResizable(false);
+		transactionTable.getColumnModel().getColumn(1).setResizable(false);
+		transactionTable.getColumnModel().getColumn(2).setResizable(false);
+		transactionTable.getColumnModel().getColumn(3).setResizable(false);
+
+		ViewAll.getContentPane().add(scrollPane1);
+		
 		JInternalFrame View = new JInternalFrame("View a Transaction");
 		View.setBounds(0, 0, 612, 398);
-		layeredPane.setLayer(View, 0);
+		layeredPane.setLayer(View, 1);
 		View.setVisible(false);
 		layeredPane.add(View);
 		
@@ -373,27 +452,76 @@ public class Application {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
 					Request.setMaximum(true);
+					Request.setLayer(3);
+					ViewAll.setLayer(2);
+					View.setLayer(1);
 					ViewAll.moveToBack();
 					View.moveToBack();
 				} catch (PropertyVetoException e) {
 					e.printStackTrace();
-				}
+				} 
 			}
 		});
 		rentButton.setBounds(26, 88, 133, 23);
 		Dashboard.add(rentButton);
 		
+		//Button to view All transactions of the currently signed in user
 		JButton viewAll = new JButton("View All Transaction");
+		
+		//Action executed when View All transactions is pressed
 		viewAll.addActionListener(new ActionListener(){
 		public void actionPerformed(ActionEvent arg0) {
 			try {
-				ViewAll.moveToFront();
-				ViewAll.setMaximum(true);
+				
+				//Pushes View All transactions layer to the front
 				Request.moveToBack();
 				View.moveToBack();
-			} catch (PropertyVetoException e) {
+				ViewAll.setMaximum(true);
+				ViewAll.setLayer(3);
+				Request.setLayer(2);
+				View.setLayer(1);
+				
+				//adds transaction model with initial format of cells and rows and their values
+				transactionTable.setModel(new DefaultTableModel(null,new String[] {"Equipment Name", "Category", "Date", "Cost"}));
+				
+				//connects to the database
+				connection = DBConnectorFactory.getDatabaseConnection();
+				
+				//Three statements to effectively carry out our queries need to display readable information to the use
+				stmt = connection.createStatement();
+				Statement transtmt = connection.createStatement();
+				Statement cat_stmt = connection.createStatement();
+				
+				
+				String userIdQuery = "SELECT id FROM users where customer_id='"+custidtxt.getText()+"'";//get id of currently signed in user
+				ResultSet userExe = stmt.executeQuery(userIdQuery);//execute that query with the first statement
+				userExe.next();//continue operation
+				String allTrans = "SELECT * FROM transaction where customer_id=" + userExe.getInt("id");//Query to get transactions of currently signed in use
+				result = stmt.executeQuery(allTrans);//execte query with first statement
+				while(result.next()) {//continue operation
+					String equipMoreInfo = "Select name,category_id from equipment where id="+result.getInt("equiment_id");//query to retrieve equipment name and category id for further querying
+					ResultSet equipMoreResult = transtmt.executeQuery(equipMoreInfo);//execute above query to retirve equipment info and category Id for next query
+					while(equipMoreResult.next()) {//continue operation
+						String categoryInfo = "Select name from category where id="+equipMoreResult.getInt("category_id");//uses category id to etrieve category name
+						ResultSet moreCategoryInfo = cat_stmt.executeQuery(categoryInfo);//execute query with third and final statement variable declared
+						moreCategoryInfo.next();//continue operation
+						SimpleDateFormat simpDate = new SimpleDateFormat("MMM dd, yyyy");//this lines helps to format date shown
+						Object[] tableData = {
+								equipMoreResult.getString("name"),
+								moreCategoryInfo.getString("name"),
+								simpDate.format(result.getDate("date")),
+								result.getFloat("cost")
+						};//displays and formats rows that will be inserted in the table
+						DefaultTableModel tblModel= (DefaultTableModel)transactionTable.getModel();
+						tblModel.addRow(tableData);//add row wid information to table
+					}
+					
+					
+				}
+				
+			} catch (PropertyVetoException | SQLException e) {
 				e.printStackTrace();
-			}
+			} 
 		}
 	});
 		viewAll.setBounds(26, 164, 133, 23);
@@ -403,6 +531,9 @@ public class Application {
 		viewButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent arg0) {
 				try {
+					View.setLayer(3);
+					ViewAll.setLayer(2);
+					Request.setLayer(1);
 					View.moveToFront();
 					View.setMaximum(true);
 					ViewAll.moveToBack();

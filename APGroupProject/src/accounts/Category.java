@@ -73,7 +73,7 @@ public class Category {
 					int ID= rslt.getInt("id");
 					String name= rslt.getString("name");
 					
-					System.out.println("ID#: "+ID+"\nCategory: "+name+");
+					System.out.println("ID#: "+ID+"\nCategory: "+name);
 				}
 				
 			} catch (SQLException e) {

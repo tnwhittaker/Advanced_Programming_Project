@@ -182,7 +182,7 @@ String insertSql= "INSERT INTO users(first_name, last_name, email, staff_id, pas
 		}
 	}
 	
-	public void authenticateCustomer(String id, String pass)
+	public boolean authenticateCustomer(String id, String pass)
 	{
 		String validateSQL="SELECT * FROM users WHERE customer_id='"+id+"'and password='"+pass+"'";
 		
@@ -191,17 +191,22 @@ String insertSql= "INSERT INTO users(first_name, last_name, email, staff_id, pas
 			result= stmt.executeQuery(validateSQL);
 			if(result.next())
 			{
-				JOptionPane.showMessageDialog(null, id+ "has logged in sucessfully");
+				JOptionPane.showMessageDialog(null, id+ " has logged in sucessfully");
 				Logger.info("Customer with ID "+id+" logged into their account");
+				return true;
 			
 			}
 			else
 			{
 				JOptionPane.showMessageDialog(null, id+ " entered something wrong");
+				return false;
 			}
+			
+			
 			
 		} catch (SQLException e) {
 			System.err.println("Error selecting all "+e.getMessage());
+			return false;
 		}
 	}
 	
@@ -374,5 +379,4 @@ String insertSql= "INSERT INTO users(first_name, last_name, email, staff_id, pas
 	}
 
 }
-
 
