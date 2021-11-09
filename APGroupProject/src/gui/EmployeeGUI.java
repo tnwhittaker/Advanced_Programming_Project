@@ -25,17 +25,18 @@ import javax.swing.JCheckBox;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.SwingUtilities;
+import javax.swing.JInternalFrame;
 
 public class EmployeeGUI {
 
-	private JFrame frame;
+	JFrame frame;
 	private JTable Inventory;
 	private JTable tableRequestedItems;
 
 	/**
 	 * Launch the application.
 	 */
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -46,7 +47,7 @@ public class EmployeeGUI {
 				}
 			}
 		});
-	}
+	}*/
 
 	/**
 	 * Create the application.
@@ -59,7 +60,7 @@ public class EmployeeGUI {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		frame = new JFrame();
+		frame = new JFrame("Grizzly's Entertainment - Employees");
 		frame.setBounds(100, 100, 519, 526);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		GridBagLayout gridBagLayout = new GridBagLayout();
@@ -368,5 +369,23 @@ public class EmployeeGUI {
 			}
 			
 		});
+		mntmLogOut.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				frame.dispose();
+				EmployeeLogin window = new EmployeeLogin();
+				window.frame.setVisible(true);
+			}
+			
+		});
+	}
+	
+
+	public void setVisible(boolean b) {
+		// TODO Auto-generated method stub
+		EmployeeGUI window = new EmployeeGUI();
+		window.frame.setVisible(b);
 	}
 }
