@@ -191,16 +191,18 @@ String insertSql= "INSERT INTO users(first_name, last_name, email, staff_id, pas
 			result= stmt.executeQuery(validateSQL);
 			if(result.next())
 			{
-				JOptionPane.showMessageDialog(null, id+ "has logged in sucessfully");
+				JOptionPane.showMessageDialog(null, id+ " has logged in sucessfully");
 				Logger.info("Customer with ID "+id+" logged into their account");
+				return true;
 			
 			}
 			else
 			{
 				JOptionPane.showMessageDialog(null, id+ " entered something wrong");
+				return false;
 			}
 			
-			return true;
+			
 			
 		} catch (SQLException e) {
 			System.err.println("Error selecting all "+e.getMessage());
