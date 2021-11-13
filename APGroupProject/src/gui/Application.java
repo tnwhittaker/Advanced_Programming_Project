@@ -88,9 +88,6 @@ public class Application {
 		initialize();
 	}
 
-	/**
-	 * Initialize the contents of the frame.
-	 */
 	private void initialize() {
 		frmGrizzlysEntertainment = new JFrame();
 		frmGrizzlysEntertainment.setResizable(false);
@@ -276,7 +273,6 @@ public class Application {
 					Logger.info("Login Failed due to incorrect credentials");
 				}
 				
-				
 			}
 		});
 		
@@ -331,6 +327,7 @@ public class Application {
 		table.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent arg0) {
 				rent.setVisible(true);
+				rent.getSomething("Orange");
 			}
 		});
 		scrollPane.setViewportView(table);
@@ -370,6 +367,7 @@ public class Application {
 					String searchSQL= "SELECT * FROM equipment WHERE category_id="+catIdResult.getInt("id")+" AND availability=1";
 					result= stmt.executeQuery(searchSQL);
 					while(result.next()) {
+						//String ID= result.get
 						String Name= result.getString("name"); 
 						if(result.getInt("availability") == 1) {
 							String Availability = "Available";
@@ -381,8 +379,7 @@ public class Application {
 							String jtbledata[]= {Name,Availability};
 							DefaultTableModel tblModel= (DefaultTableModel)table.getModel();
 							tblModel.addRow(jtbledata);
-						}
-						
+						}	
 						
 					}
 
@@ -400,7 +397,7 @@ public class Application {
 		JButton selectButton = new JButton("Select");
 		selectButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				
+				System.out.println(rent.getDate()); 
 			}
 		});
 		selectButton.setBounds(478, 310, 89, 23);
@@ -515,8 +512,6 @@ public class Application {
 						DefaultTableModel tblModel= (DefaultTableModel)transactionTable.getModel();
 						tblModel.addRow(tableData);//add row wid information to table
 					}
-					
-					
 				}
 				
 			} catch (PropertyVetoException | SQLException e) {
@@ -553,7 +548,11 @@ public class Application {
 		ViewAll.setVisible(true);
 		Request.setVisible(true);
 		
-				
-		
+	}
+	
+	
+	public String getColValue() {
+		return 	(String)table.getModel().getValueAt(table.getSelectedRow(), 1);
+
 	}
 }

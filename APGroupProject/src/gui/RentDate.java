@@ -32,9 +32,8 @@ public class RentDate extends JDialog {
 	private final JPanel contentPanel = new JPanel();
 	private JDatePanelImpl datePanel;
 
-	/**
-	 * Launch the application.
-	 */
+	private String st;
+	
 	public static void main(String[] args) {
 		try {
 			RentDate dialog = new RentDate();
@@ -53,9 +52,10 @@ public class RentDate extends JDialog {
 		setResizable(false);
 		setTitle("Select Rent Date");
 		setBounds(100, 100, 370, 243);
-		getContentPane().setLayout(new BorderLayout());
+		getContentPane().setLayout(null);
+		contentPanel.setBounds(0, 0, 0, 0);
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
-		getContentPane().add(contentPanel, BorderLayout.CENTER);
+		getContentPane().add(contentPanel);
 		contentPanel.setLayout(null);
 		
 		
@@ -68,7 +68,7 @@ public class RentDate extends JDialog {
 		p.put("text.year", "Year");
 		JDatePanelImpl datePanel = new JDatePanelImpl(model, p);
 		// Don't know about the formatter, but there it is...
-		JDatePickerImpl datePicker = new JDatePickerImpl(datePanel, new DateComponentFormatter());
+		datePicker.setBounds(0, 100, 356, 51);
 		//model.setDate(new Date());
 		
 		JLabel Message = new JLabel("Enter the date you want to rent the equipment");
@@ -95,15 +95,16 @@ public class RentDate extends JDialog {
 		contentPanel.add(yearLbl);
 		{
 			JPanel buttonPane = new JPanel();
+			buttonPane.setBounds(0, 173, 356, 33);
 			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
-			getContentPane().add(buttonPane, BorderLayout.SOUTH);
+			getContentPane().add(buttonPane);
 			{
 				JButton okButton = new JButton("OK");
 				okButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						
-						SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-dd");
-						System.out.println(formatter.format(datePicker.getModel().getValue())); 
+						getDate();
+						getSomething(st);
+						System.out.println(st);
 						
 					}
 				});
@@ -128,15 +129,22 @@ public class RentDate extends JDialog {
 			}
 		}
 		
+		JLabel lblNewLabel = new JLabel("Enter the date you want to rent");
+		lblNewLabel.setBounds(95, 49, 196, 26);
+		getContentPane().add(lblNewLabel);
+		
+		
+		
 	}
 	
-	public void displayWindow() {
-		try {
-			RentDate dialog = new RentDate();
-			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-			dialog.setVisible(true);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	public void getSomething(String a) {
+		st=a;
 	}
+	
+public String getDate() {
+		SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-dd");
+		return formatter.format(datePicker.getModel().getValue()).toString(); 
+	}
+	
+	
 }
