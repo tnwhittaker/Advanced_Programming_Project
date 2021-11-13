@@ -63,7 +63,8 @@ public class Application {
 	private Statement stmt=null;
 	private ResultSet result=null;
 	private JTable transactionTable;
-
+	RentDate rent= new RentDate();
+	
 	/**
 	 * Launch the application.
 	 */
@@ -328,18 +329,8 @@ public class Application {
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.setColumnSelectionAllowed(true);
 		table.addMouseListener(new MouseAdapter() {
-			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				String check=(String)table.getModel().getValueAt(table.getSelectedRow(), 1);
-				if (check.contains("2")) {
-					JOptionPane.showMessageDialog(null, "Sorry, this device has already been rented","Error",JOptionPane.INFORMATION_MESSAGE);
-				}
-				else if(check.contains("1")) {
-					RentDate rent = new RentDate();
-					rent.displayWindow();
-					
-				}
-				
+				rent.setVisible(true);
 			}
 		});
 		scrollPane.setViewportView(table);
@@ -376,7 +367,7 @@ public class Application {
 					String catID= "SELECT id FROM category WHERE name="+cat;
 					ResultSet catIdResult = stmt.executeQuery(catID);
 					catIdResult.next();
-					String searchSQL= "SELECT * FROM equipment WHERE category_id="+catIdResult.getInt("id");
+					String searchSQL= "SELECT * FROM equipment WHERE category_id="+catIdResult.getInt("id")+" AND availability=1";
 					result= stmt.executeQuery(searchSQL);
 					while(result.next()) {
 						String Name= result.getString("name"); 
@@ -405,6 +396,15 @@ public class Application {
 		});
 		search.setBounds(47, 162, 83, 23);
 		Request.getContentPane().add(search);
+		
+		JButton selectButton = new JButton("Select");
+		selectButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+			}
+		});
+		selectButton.setBounds(478, 310, 89, 23);
+		Request.getContentPane().add(selectButton);
 		
 		
 		
