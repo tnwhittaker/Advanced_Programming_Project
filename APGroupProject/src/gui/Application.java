@@ -63,7 +63,10 @@ public class Application {
 	private Statement stmt=null;
 	private ResultSet result=null;
 	private JTable transactionTable;
-
+	private JTable viewTable;
+	RentDate rent= new RentDate();
+	JComboBox transBox = new JComboBox();
+	
 	/**
 	 * Launch the application.
 	 */
@@ -87,9 +90,6 @@ public class Application {
 		initialize();
 	}
 
-	/**
-	 * Initialize the contents of the frame.
-	 */
 	private void initialize() {
 		frmGrizzlysEntertainment = new JFrame();
 		frmGrizzlysEntertainment.setResizable(false);
@@ -275,7 +275,6 @@ public class Application {
 					Logger.info("Login Failed due to incorrect credentials");
 				}
 				
-				
 			}
 		});
 		
@@ -328,18 +327,8 @@ public class Application {
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.setColumnSelectionAllowed(true);
 		table.addMouseListener(new MouseAdapter() {
-			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				String check=(String)table.getModel().getValueAt(table.getSelectedRow(), 1);
-				if (check.contains("2")) {
-					JOptionPane.showMessageDialog(null, "Sorry, this device has already been rented","Error",JOptionPane.INFORMATION_MESSAGE);
-				}
-				else if(check.contains("1")) {
-					RentDate rent = new RentDate();
-					rent.displayWindow();
-					
-				}
-				
+				rent.setVisible(true);
 			}
 		});
 		scrollPane.setViewportView(table);
@@ -376,9 +365,10 @@ public class Application {
 					String catID= "SELECT id FROM category WHERE name="+cat;
 					ResultSet catIdResult = stmt.executeQuery(catID);
 					catIdResult.next();
-					String searchSQL= "SELECT * FROM equipment WHERE category_id="+catIdResult.getInt("id");
+					String searchSQL= "SELECT * FROM equipment WHERE category_id="+catIdResult.getInt("id")+" AND availability=1";
 					result= stmt.executeQuery(searchSQL);
 					while(result.next()) {
+						//String ID= result.get
 						String Name= result.getString("name"); 
 						if(result.getInt("availability") == 1) {
 							String Availability = "Available";
@@ -390,8 +380,7 @@ public class Application {
 							String jtbledata[]= {Name,Availability};
 							DefaultTableModel tblModel= (DefaultTableModel)table.getModel();
 							tblModel.addRow(jtbledata);
-						}
-						
+						}	
 						
 					}
 
@@ -406,11 +395,21 @@ public class Application {
 		search.setBounds(47, 162, 83, 23);
 		Request.getContentPane().add(search);
 		
+		JButton selectButton = new JButton("Select");
+		selectButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				Transaction t= new Transaction();
+				t.create(0, null, 0);
+			}
+		});
+		selectButton.setBounds(478, 310, 89, 23);
+		Request.getContentPane().add(selectButton);
+		
 		
 		
 		JInternalFrame ViewAll = new JInternalFrame("View All Transactions");
 		ViewAll.setBounds(0, 0, 612, 398);
-		layeredPane.setLayer(ViewAll, 2);
+		layeredPane.setLayer(ViewAll, 4);
 		ViewAll.setVisible(false);
 		layeredPane.add(ViewAll);
 		
@@ -443,7 +442,7 @@ public class Application {
 		
 		JInternalFrame View = new JInternalFrame("View a Transaction");
 		View.setBounds(0, 0, 612, 398);
-		layeredPane.setLayer(View, 1);
+		layeredPane.setLayer(View, 5);
 		View.setVisible(false);
 		layeredPane.add(View);
 		
@@ -515,8 +514,6 @@ public class Application {
 						DefaultTableModel tblModel= (DefaultTableModel)transactionTable.getModel();
 						tblModel.addRow(tableData);//add row wid information to table
 					}
-					
-					
 				}
 				
 			} catch (PropertyVetoException | SQLException e) {
@@ -526,6 +523,50 @@ public class Application {
 	});
 		viewAll.setBounds(26, 164, 133, 23);
 		Dashboard.add(viewAll);
+		View.getContentPane().setLayout(null);
+		
+		
+		
+		
+		JScrollPane scrollPane2 = new JScrollPane();
+		scrollPane2.setBounds(0, 0, 602, 291);
+		View.getContentPane().add(scrollPane2);
+		
+		viewTable = new JTable();
+		
+		viewTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		viewTable.setColumnSelectionAllowed(true);
+		
+		scrollPane2.setViewportView(viewTable);
+		
+		
+		viewTable.setModel(new DefaultTableModel(
+			new Object[][] {
+			
+			},
+			new String[] {
+				"Equipment Name", "Category", "Date", "Cost"
+			}
+		));
+		viewTable.getColumnModel().getColumn(0).setResizable(false);
+		viewTable.getColumnModel().getColumn(1).setResizable(false);
+		viewTable.getColumnModel().getColumn(2).setResizable(false);
+		viewTable.getColumnModel().getColumn(3).setResizable(false);
+
+		View.getContentPane().add(scrollPane2);
+		
+		JButton selectbttn = new JButton("Select");
+		selectbttn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				showDetails();
+			}
+		});
+		selectbttn.setBounds(252, 335, 89, 23);
+		View.getContentPane().add(selectbttn);
+		
+		
+		transBox.setBounds(243, 302, 108, 23);
+		View.getContentPane().add(transBox);
 		
 		JButton viewButton = new JButton("View A Transaction");
 		viewButton.addActionListener(new ActionListener(){
@@ -538,6 +579,7 @@ public class Application {
 					View.setMaximum(true);
 					ViewAll.moveToBack();
 					Request.moveToBack();
+					getItems();
 				} catch (PropertyVetoException e) {
 					e.printStackTrace();
 				}
@@ -553,7 +595,72 @@ public class Application {
 		ViewAll.setVisible(true);
 		Request.setVisible(true);
 		
-				
-		
 	}
+	
+	
+public void showDetails() {
+		
+		try {
+		//adds transaction model with initial format of cells and rows and their values
+		viewTable.setModel(new DefaultTableModel(null,new String[] {"Equipment Name", "Category", "Date", "Cost"}));
+		
+		//connects to the database
+		connection = DBConnectorFactory.getDatabaseConnection();
+		
+			//Three statements to effectively carry out our queries need to display readable information to the use
+			stmt = connection.createStatement();
+			//Statement transtmt = connection.createStatement();
+			//Statement cat_stmt = connection.createStatement();
+		
+String joinQuery="SELECT e.name,e.category_id,t.date,t.cost FROM equipment AS e inner JOIN transaction as t on e.id=t.equiment_id WHERE e.name= '"+transBox.getSelectedItem()+"'"+"AND t.custID='"+custidtxt.getText()+"'";                   
+			
+		//String userIdQuery = "SELECT id FROM users where customer_id='"+custidtxt.getText()+"'";//get id of currently signed in user
+		
+		ResultSet joinResult = stmt.executeQuery(joinQuery);//execute that query with the first statement
+		
+		//userExe.next();//continue operation
+		
+		//String allTrans = "SELECT * FROM transaction where customer_id=" + userExe.getInt("id");//Query to get transactions of currently signed in use
+		
+		
+			while(joinResult.next()) {//continue operation
+				
+				//SimpleDateFormat simpDate = new SimpleDateFormat("MMM dd, yyyy");//this lines helps to format date shown
+				Object[] tableData = {
+						joinResult.getString("name"),
+						joinResult.getInt("category_id"),
+						joinResult.getString("date"),
+						joinResult.getFloat("cost")
+						
+						};
+				DefaultTableModel tblModel= (DefaultTableModel)viewTable.getModel();
+				tblModel.addRow(tableData);//add row with information to table
+					
+		}
+	
+	} catch (SQLException e) {
+		e.printStackTrace();
+	}}
+
+	
+	
+	
+	public void getItems() {
+		try {
+			transBox.removeAllItems();
+String selectQuery= "SELECT name FROM equipment inner JOIN transaction on equipment.id=transaction.equiment_id WHERE transaction.custID='"+custidtxt.getText()+"'";
+			connection= DBConnectorFactory.getDatabaseConnection();
+			stmt= connection.createStatement();
+			result= stmt.executeQuery(selectQuery);
+			while(result.next()) {
+				String eqname= result.getString("name");
+				transBox.addItem(eqname);
+			}
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
 }
