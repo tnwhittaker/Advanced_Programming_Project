@@ -31,9 +31,11 @@ public class RentDate extends JDialog {
 	private static final long serialVersionUID = 1L;
 	private final JPanel contentPanel = new JPanel();
 	private JDatePanelImpl datePanel;
+	private String date;
 
-	private String st;
-	
+	/**
+	 * Launch the application.
+	 */
 	public static void main(String[] args) {
 		try {
 			RentDate dialog = new RentDate();
@@ -68,7 +70,8 @@ public class RentDate extends JDialog {
 		p.put("text.year", "Year");
 		JDatePanelImpl datePanel = new JDatePanelImpl(model, p);
 		// Don't know about the formatter, but there it is...
-		datePicker.setBounds(0, 100, 356, 51);
+		JDatePickerImpl datePicker = new JDatePickerImpl(datePanel, new DateComponentFormatter());
+		datePicker.setBounds(0, 77, 356, 51);
 		//model.setDate(new Date());
 		
 		JLabel Message = new JLabel("Enter the date you want to rent the equipment");
@@ -102,9 +105,9 @@ public class RentDate extends JDialog {
 				JButton okButton = new JButton("OK");
 				okButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						getDate();
-						getSomething(st);
-						System.out.println(st);
+						SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-dd");
+						date=formatter.format(datePicker.getModel().getValue()).toString();
+						dispose();
 						
 					}
 				});
@@ -130,21 +133,23 @@ public class RentDate extends JDialog {
 		}
 		
 		JLabel lblNewLabel = new JLabel("Enter the date you want to rent");
-		lblNewLabel.setBounds(95, 49, 196, 26);
+		lblNewLabel.setBounds(95, 25, 196, 26);
 		getContentPane().add(lblNewLabel);
 		
+	}
+	
+	public String returnDate() {
+		return date;
 		
-		
 	}
 	
-	public void getSomething(String a) {
-		st=a;
+	public void displayWindow() {
+		try {
+			RentDate dialog = new RentDate();
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
-	
-public String getDate() {
-		SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-dd");
-		return formatter.format(datePicker.getModel().getValue()).toString(); 
-	}
-	
-	
 }
