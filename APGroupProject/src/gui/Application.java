@@ -325,22 +325,18 @@ public class Application {
 		
 		table = new JTable();
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		table.setColumnSelectionAllowed(true);
-		table.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent arg0) {
-				rent.setVisible(true);
-			}
-		});
+		table.setRowSelectionAllowed(true);
 		scrollPane.setViewportView(table);
 		table.setModel(new DefaultTableModel(
 			new Object[][] {
 			},
 			new String[] {
-				"Name", "Availability"
+				"ID","Name", "Availability"
 			}
 		));
 		table.getColumnModel().getColumn(0).setResizable(false);
 		table.getColumnModel().getColumn(1).setResizable(false);
+		table.getColumnModel().getColumn(2).setResizable(false);
 		
 		
 		
@@ -357,7 +353,7 @@ public class Application {
 		search.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				try {  
-					table.setModel(new DefaultTableModel(null,new String[] {"Name","Availability"}));
+					table.setModel(new DefaultTableModel(null,new String[] {"ID","Name","Availability"}));
 					connection= DBConnectorFactory.getDatabaseConnection();
 					stmt= connection.createStatement();
 					String quote="'";
@@ -366,18 +362,19 @@ public class Application {
 					ResultSet catIdResult = stmt.executeQuery(catID);
 					catIdResult.next();
 					String searchSQL= "SELECT * FROM equipment WHERE category_id="+catIdResult.getInt("id")+" AND availability=1";
+					
 					result= stmt.executeQuery(searchSQL);
 					while(result.next()) {
-						//String ID= result.get
+						String ID= result.getString("id");
 						String Name= result.getString("name"); 
 						if(result.getInt("availability") == 1) {
 							String Availability = "Available";
-							String jtbledata[]= {Name,Availability};
+							String jtbledata[]= {ID, Name,Availability};
 							DefaultTableModel tblModel= (DefaultTableModel)table.getModel();
 							tblModel.addRow(jtbledata);
 						}else {
 							String Availability = "Unavailable";
-							String jtbledata[]= {Name,Availability};
+							String jtbledata[]= {ID, Name,Availability};
 							DefaultTableModel tblModel= (DefaultTableModel)table.getModel();
 							tblModel.addRow(jtbledata);
 						}	
@@ -395,11 +392,19 @@ public class Application {
 		search.setBounds(47, 162, 83, 23);
 		Request.getContentPane().add(search);
 		
-		JButton selectButton = new JButton("Select");
+		JButton selectButton = new JButton("Rent");
 		selectButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				Transaction t= new Transaction();
-				t.create(0, null, 0);
+				String id = (String) table.getValueAt(table.getSelectedRow() , 0);
+				String name = (String) table.getValueAt(table.getSelectedRow() , 1);
+				String status = (String) table.getValueAt(table.getSelectedRow() , 2);
+				rent.setId(id);
+				rent.setName(name);
+				rent.setStatus(status);
+				rent.setCurrentUser(custidtxt.getText());
+				rent.setVisible(true);
+				
+	            
 			}
 		});
 		selectButton.setBounds(478, 310, 89, 23);
@@ -409,7 +414,7 @@ public class Application {
 		
 		JInternalFrame ViewAll = new JInternalFrame("View All Transactions");
 		ViewAll.setBounds(0, 0, 612, 398);
-		layeredPane.setLayer(ViewAll, 4);
+		layeredPane.setLayer(ViewAll, 2);
 		ViewAll.setVisible(false);
 		layeredPane.add(ViewAll);
 		
@@ -442,7 +447,7 @@ public class Application {
 		
 		JInternalFrame View = new JInternalFrame("View a Transaction");
 		View.setBounds(0, 0, 612, 398);
-		layeredPane.setLayer(View, 5);
+		layeredPane.setLayer(View, 1);
 		View.setVisible(false);
 		layeredPane.add(View);
 		
@@ -498,10 +503,10 @@ public class Application {
 				String allTrans = "SELECT * FROM transaction where customer_id=" + userExe.getInt("id");//Query to get transactions of currently signed in use
 				result = stmt.executeQuery(allTrans);//execte query with first statement
 				while(result.next()) {//continue operation
-					String equipMoreInfo = "Select name,category_id from equipment where id="+result.getInt("equiment_id");//query to retrieve equipment name and category id for further querying
-					ResultSet equipMoreResult = transtmt.executeQuery(equipMoreInfo);//execute above query to retirve equipment info and category Id for next query
+					String equipMoreInfo = "Select name,category_id,cost from equipment where id="+result.getInt("equipment_id");//query to retrieve equipment name and category id for further querying
+					ResultSet equipMoreResult = transtmt.executeQuery(equipMoreInfo);//execute above query to retrieve equipment info and category Id for next query
 					while(equipMoreResult.next()) {//continue operation
-						String categoryInfo = "Select name from category where id="+equipMoreResult.getInt("category_id");//uses category id to etrieve category name
+						String categoryInfo = "Select name from category where id="+equipMoreResult.getInt("category_id");//uses category id to retrieve category name
 						ResultSet moreCategoryInfo = cat_stmt.executeQuery(categoryInfo);//execute query with third and final statement variable declared
 						moreCategoryInfo.next();//continue operation
 						SimpleDateFormat simpDate = new SimpleDateFormat("MMM dd, yyyy");//this lines helps to format date shown
@@ -509,7 +514,7 @@ public class Application {
 								equipMoreResult.getString("name"),
 								moreCategoryInfo.getString("name"),
 								simpDate.format(result.getDate("date")),
-								result.getFloat("cost")
+								equipMoreResult.getFloat("cost")
 						};//displays and formats rows that will be inserted in the table
 						DefaultTableModel tblModel= (DefaultTableModel)transactionTable.getModel();
 						tblModel.addRow(tableData);//add row wid information to table
@@ -606,22 +611,20 @@ public void showDetails() {
 		
 		//connects to the database
 		connection = DBConnectorFactory.getDatabaseConnection();
+		String userIdQuery = "SELECT id FROM users where customer_id='"+custidtxt.getText()+"'";//get id of currently signed in user
+		Statement stmt1 = connection.createStatement();
+		ResultSet uid = stmt1.executeQuery(userIdQuery);
+		uid.next();
 		
-			//Three statements to effectively carry out our queries need to display readable information to the use
-			stmt = connection.createStatement();
-			//Statement transtmt = connection.createStatement();
-			//Statement cat_stmt = connection.createStatement();
-		
-String joinQuery="SELECT e.name,e.category_id,t.date,t.cost FROM equipment AS e inner JOIN transaction as t on e.id=t.equiment_id WHERE e.name= '"+transBox.getSelectedItem()+"'"+"AND t.custID='"+custidtxt.getText()+"'";                   
+		//Three statements to effectively carry out our queries need to display readable information to the use
+		stmt = connection.createStatement();
 			
-		//String userIdQuery = "SELECT id FROM users where customer_id='"+custidtxt.getText()+"'";//get id of currently signed in user
+		
+		String joinQuery="SELECT e.name,e.category_id,t.date,e.cost FROM equipment AS e inner JOIN transaction as t on e.id=t.equipment_id WHERE e.name= '"+transBox.getSelectedItem()+"'"+"AND t.customer_id='"+uid.getInt("id")+"'";                   
+			
+		
 		
 		ResultSet joinResult = stmt.executeQuery(joinQuery);//execute that query with the first statement
-		
-		//userExe.next();//continue operation
-		
-		//String allTrans = "SELECT * FROM transaction where customer_id=" + userExe.getInt("id");//Query to get transactions of currently signed in use
-		
 		
 			while(joinResult.next()) {//continue operation
 				
@@ -648,9 +651,14 @@ String joinQuery="SELECT e.name,e.category_id,t.date,t.cost FROM equipment AS e 
 	public void getItems() {
 		try {
 			transBox.removeAllItems();
-String selectQuery= "SELECT name FROM equipment inner JOIN transaction on equipment.id=transaction.equiment_id WHERE transaction.custID='"+custidtxt.getText()+"'";
+			String userIdQuery = "SELECT id FROM users where customer_id='"+custidtxt.getText()+"'";//get id of currently signed in user
+			
 			connection= DBConnectorFactory.getDatabaseConnection();
 			stmt= connection.createStatement();
+			Statement stmt1 = connection.createStatement();
+			ResultSet uid = stmt1.executeQuery(userIdQuery);
+			uid.next();
+			String selectQuery= "SELECT name FROM equipment inner JOIN transaction on equipment.id=transaction.equipment_id WHERE transaction.customer_id='"+uid.getInt("id")+"'";
 			result= stmt.executeQuery(selectQuery);
 			while(result.next()) {
 				String eqname= result.getString("name");

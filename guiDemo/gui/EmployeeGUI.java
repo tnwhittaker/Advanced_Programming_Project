@@ -195,6 +195,7 @@ public class EmployeeGUI {
 		gbc_btnNewItem.gridx = 3;
 		gbc_btnNewItem.gridy = 1;
 		panelInventory.add(btnNewItem, gbc_btnNewItem);
+		
 		GridBagConstraints gbc_btnUpdateItem = new GridBagConstraints();
 		gbc_btnUpdateItem.anchor = GridBagConstraints.NORTH;
 		gbc_btnUpdateItem.fill = GridBagConstraints.HORIZONTAL;

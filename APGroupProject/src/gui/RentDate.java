@@ -14,10 +14,15 @@ import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
 
+import connectionFiles.DBConnectorFactory;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -29,9 +34,16 @@ import javax.swing.DefaultComboBoxModel;
 public class RentDate extends JDialog {
 
 	private static final long serialVersionUID = 1L;
+	private static Connection connection=null;
+	private Statement stmt=null;
+	private ResultSet result=null;
 	private final JPanel contentPanel = new JPanel();
 	private JDatePanelImpl datePanel;
 	private String date;
+	private String id;
+	private String eq_name;
+	private String status;
+	private String currentUser;
 
 	/**
 	 * Launch the application.
@@ -49,7 +61,7 @@ public class RentDate extends JDialog {
 	/**
 	 * Create the dialog.
 	 */
-	public RentDate() {
+	public RentDate( ) {
 		setAlwaysOnTop(true);
 		setResizable(false);
 		setTitle("Select Rent Date");
@@ -105,10 +117,25 @@ public class RentDate extends JDialog {
 				JButton okButton = new JButton("OK");
 				okButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-dd");
-						date=formatter.format(datePicker.getModel().getValue()).toString();
-						dispose();
-						
+						try {
+							SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-dd");
+							date=formatter.format(datePicker.getModel().getValue()).toString();
+//							System.out.println(getId() + " " + getStatus() + " " + date);
+							connection= DBConnectorFactory.getDatabaseConnection();
+							String userIdQuery = "SELECT id FROM users where customer_id='"+getCurrentUser()+"'";//get id of currently signed in user
+							Statement stmt1 = connection.createStatement();
+							ResultSet uid = stmt1.executeQuery(userIdQuery);
+							uid.next();
+							
+							stmt = connection.createStatement();
+//							String insert = "INSERT INTO request VALUES (" + getId() + ","+ date + ","+"0)";
+							String Query_String = "INSERT INTO transaction(equipment_id,date,customer_id) VALUES ('"+getId()+"','"+date+"','" + uid.getInt("id") + "')";
+							stmt.executeLargeUpdate(Query_String);
+							dispose();
+						} catch (SQLException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
 					}
 				});
 				okButton.setActionCommand("OK");
@@ -138,10 +165,11 @@ public class RentDate extends JDialog {
 		
 	}
 	
-	public String returnDate() {
-		return date;
-		
-	}
+//	public void setVariables(String Id, String Name, String status) {
+////		System.out.println(Id + " " + Name + " " + status);
+//		
+//		
+//	}
 	
 	public void displayWindow() {
 		try {
@@ -151,5 +179,37 @@ public class RentDate extends JDialog {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public String getEq_name() {
+		return eq_name;
+	}
+
+	public void setEq_name(String eq_name) {
+		this.eq_name = eq_name;
+	}
+
+	public String getCurrentUser() {
+		return currentUser;
+	}
+
+	public void setCurrentUser(String currentUser) {
+		this.currentUser = currentUser;
 	}
 }
