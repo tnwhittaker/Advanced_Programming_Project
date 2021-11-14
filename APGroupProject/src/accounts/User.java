@@ -184,7 +184,7 @@ String insertSql= "INSERT INTO users(first_name, last_name, email, staff_id, pas
 	
 	public boolean authenticateCustomer(String id, String pass)
 	{
-		String validateSQL="SELECT * FROM users WHERE customer_id='"+id+"'and password='"+pass+"'";
+		String validateSQL="SELECT * FROM users WHERE type=1 AND customer_id='"+id+"'and password='"+pass+"'";
 		
 		try {
 			stmt=connection.createStatement();
@@ -199,6 +199,36 @@ String insertSql= "INSERT INTO users(first_name, last_name, email, staff_id, pas
 			else
 			{
 				JOptionPane.showMessageDialog(null, id+ " entered something wrong");
+				Logger.info("Customer with ID "+id+" failed to log into their account");
+				return false;
+			}
+			
+			
+			
+		} catch (SQLException e) {
+			System.err.println("Error selecting all "+e.getMessage());
+			return false;
+		}
+	}
+	
+	public boolean authenticateEmployee(String id, String pass)
+	{
+		String validateSQL="SELECT * FROM users WHERE type=2 AND staff_id='"+id+"'and password='"+pass+"'";
+		
+		try {
+			stmt=connection.createStatement();
+			result= stmt.executeQuery(validateSQL);
+			if(result.next())
+			{
+				JOptionPane.showMessageDialog(null, id+ " has logged in sucessfully");
+				Logger.info("Employee with ID "+id+" logged into their account");
+				return true;
+			
+			}
+			else
+			{
+				JOptionPane.showMessageDialog(null, id+ " entered something wrong");
+				Logger.info("Employee with ID "+id+" failed to log into their account");
 				return false;
 			}
 			

@@ -1,4 +1,4 @@
-package employee.gui;
+package gui;
 
 import java.awt.EventQueue;
 
@@ -6,9 +6,16 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
+
+import accounts.User;
+
 import javax.swing.JPasswordField;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.logging.Logger;
 import java.awt.event.ActionEvent;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
@@ -19,6 +26,9 @@ public class EmployeeLogin {
 	JFrame frame;
 	private JTextField usernameField;
 	private JPasswordField passwordField;
+	private static Connection connection=null;
+	private Statement stmt=null;
+	private ResultSet result=null;
 
 	/**
 	 * Launch the application.
@@ -100,11 +110,11 @@ public class EmployeeLogin {
 				String uName= usernameField.getText();
 				String pass= passwordField.getText();
 				
-				if(uName.equals("admin")&& pass.equals("password")) {
+				User c= new User();
+				if(c.authenticateEmployee(uName, pass)) {
 					EmployeeGUI eGUI= new EmployeeGUI();
 					eGUI.setVisible(true);
 					frame.dispose();
-					
 				}else {
 					JOptionPane.showMessageDialog(null,"Incorrect username or password","LOGIN FAILED",JOptionPane.ERROR_MESSAGE);
 				}
