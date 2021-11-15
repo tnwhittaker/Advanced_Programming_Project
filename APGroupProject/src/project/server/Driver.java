@@ -1,4 +1,4 @@
-package server;
+package project.server;
 
 public class Driver {
 

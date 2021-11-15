@@ -184,13 +184,7 @@ public class EmployeeGUI {
 		gbc_btnDeleteItem.gridy = 3;
 		panelInventory.add(btnDeleteItem, gbc_btnDeleteItem);
 		
-		btnDeleteItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				delete();
-			}
-		});
-		
+				
 		JScrollPane scrollPane = new JScrollPane();
 		GridBagConstraints gbc_scrollPane = new GridBagConstraints();
 		gbc_scrollPane.gridwidth = 3;
@@ -213,7 +207,7 @@ public class EmployeeGUI {
 				new String[] {
 					"ID","Name", "Category", "Status"
 				}
-			));
+			));//Creates columns for the table
 		
 			
 		JComboBox comboBoxItemCategory = new JComboBox(itemType);
@@ -234,26 +228,41 @@ public class EmployeeGUI {
 				case "All":
 					table.setModel(new DefaultTableModel(null,new String[] {"ID","Name", "Category", "Status"}));
 					getAllEquipment(table);
+					LOGGER.info("All categories added to table");
 					break;
 				case "Lighting":
 					table.setModel(new DefaultTableModel(null,new String[] {"ID","Name", "Status"}));
 					getEquipmentByCategory(table, s);
+					LOGGER.info("Lighting equipment added to table");
 						break;
 				case "Power":
 					table.setModel(new DefaultTableModel(null,new String[] {"ID","Name", "Status"}));
 					getEquipmentByCategory(table, s);
+					LOGGER.info("Power eqipment added to table");
 						break;
 				case "Sound":
 					table.setModel(new DefaultTableModel(null,new String[] {"ID","Name", "Status"}));
 					getEquipmentByCategory(table, s);
+					LOGGER.info("Sound equipment added to table");
 						break;		
 				case "Staging":
 					table.setModel(new DefaultTableModel(null,new String[] {"ID","Name", "Status"}));
 					getEquipmentByCategory(table, s);
+					LOGGER.info("Staging equipment added to table");
 						break;
-				}
+				}//Case selection that determines what category of equipment will be loaded in the table
 			}
 		});	
+		
+		
+		btnDeleteItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				delete(table);
+			}
+		});
+
+		
 		
 		JPanel panelRequestsHub = new JPanel();
 		tabbedPane.addTab("Requests Hub", null, panelRequestsHub, null);
@@ -315,7 +324,7 @@ public class EmployeeGUI {
 		gbc_tableRequestedItems.fill = GridBagConstraints.BOTH;
 		gbc_tableRequestedItems.gridx = 0;
 		gbc_tableRequestedItems.gridy = 1;
-		panelRequestsHub.add(requestScrollPane, gbc_tableRequestedItems);	
+		//panelRequestsHub.add(requestScrollPane, gbc_tableRequestedItems);	
 		
 
 		JMenuBar menuBar = new JMenuBar();
@@ -339,7 +348,6 @@ public class EmployeeGUI {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
 				frame.dispose();
 				EmployeeLogin window = new EmployeeLogin();
 				window.frame.setVisible(true);
@@ -793,6 +801,7 @@ public void AddNewItem() {
 		gbc_itemIDTxtField.gridy = 2;
 		update.add(itemIDTxtField, gbc_itemIDTxtField);
 		itemIDTxtField.setColumns(10);
+		
 
 		JLabel updateToLbl = new JLabel("Update to:");
 		updateToLbl.setFont(new Font("Tahoma", Font.BOLD, 11));
@@ -917,7 +926,8 @@ public void AddNewItem() {
 		updatePanel.setVisible(true);
 	}
 
-	public void delete() {
+	public void delete(JTable table) {
+		System.out.println();
 		JTextField textField;
 		JPanel deletePanel;
 		JFrame deleteFrame = new JFrame("Grizzly's Entertainment - Employees-Delete");
@@ -1001,7 +1011,22 @@ public void AddNewItem() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-
+				String deleteSQL="DELETE FROM equipment WHERE ID='"+(String) table.getValueAt(table.getSelectedRow() , 0)+"'";
+				
+					try {
+						stmt=connection.createStatement();
+						int numOfRows=stmt.executeUpdate(deleteSQL);	
+						if(numOfRows==1) {
+							JOptionPane.showMessageDialog(null, "Equipment record has been deleted");
+						}
+						else {
+							JOptionPane.showMessageDialog(null, "Equipment record has been deleted");
+						}
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
 				deletePanel.setVisible(false);
 				frame.setVisible(true);
 			}

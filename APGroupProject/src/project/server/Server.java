@@ -1,9 +1,12 @@
-package server;
+package project.server;
 
 import java.io.*;
 import java.net.*;
 import java.sql.*;
-import client.*;
+
+import project.accounts.Equipment;
+import project.client.*;
+
 import javax.swing.JOptionPane;
 
 public class Server {
@@ -19,7 +22,7 @@ public class Server {
 	{
 		this.createConnection();
 		this.waitForRequests();
-	}
+	}//Default constructor
 	
 	private void createConnection()
 	{
@@ -31,7 +34,7 @@ public class Server {
 			i.printStackTrace();
 		}
 	
-	}
+	}//Sets which port the server should listen to for a connection
 	
 	private void configureStreams()
 	{
@@ -42,7 +45,7 @@ public class Server {
 			
 			e.printStackTrace();
 		}
-	}
+	}//Initializes the I/O Streams
 	
 	private static Connection getDatabaseConnection()
 	{
@@ -62,7 +65,7 @@ public class Server {
 			}
 		}
 		return dBConn;
-	}
+	}//Makes a connection to database
 	
 	private void closeConnection()
 	{
@@ -72,11 +75,11 @@ public class Server {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
+	}//Closes server connection
 	
-	private void addStudentToFile(Student student)
+	private void addEquipmentToFile(Equipment equipment)
 	{
-		String sql= "INSERT INTO dblab1.students(ID, FirstName, LastName, Email) VALUES ('"+ student.getId() +"','"+student.getFirstName()+"','"+student.getLastName()+"','"+student.getEmail()+"')";
+		String sql= "INSERT INTO equipment(name, category_id, availability, cost) VALUES ('"+ equipment.getName() +"','"+equipment.getCategoryID()+"','"+equipment.getAvailability()+"','"+equipment.getCost()+"')";
 		try {
 			
 			stmt= dBConn.createStatement();
@@ -93,33 +96,15 @@ public class Server {
 			sqe.printStackTrace();
 		}
 		
-	}
+	}//Writes to equipment table in database
 	
-	private Student findStudentById(String stuid)
-	{
-		Student stuObj= new Student();
-		String query= "SELECT * FROM students WHERE ID="+stuid;
-		try {
-			stmt= dBConn.createStatement();
-			result= stmt.executeQuery(query);
-			if (result.next()) {
-				stuObj.setId(result.getString(1));
-				stuObj.setFirstName(result.getString(2));
-				stuObj.setLastName(result.getString(3));
-				stuObj.setEmail(result.getString(4));
-				System.out.println("ID: "+stuObj.getId()+"\nFirst Name: "+stuObj.getFirstName()+"\nLast Name: "+stuObj.getLastName()+"\nEmail: "+stuObj.getEmail());
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return stuObj;
-	}
+	
 	
 	private void waitForRequests()
 	{
 		String action="";
 		getDatabaseConnection();
-		Student stuObj= null;
+		Equipment stuObj= null;
 		try {
 			while(true)
 			{
@@ -128,15 +113,13 @@ public class Server {
 				this.configureStreams();
 				try {
 					action= (String) objIs.readObject();
-					if(action.equals("Add Student")) {
-						stuObj= (Student) objIs.readObject();
-						addStudentToFile(stuObj);
+					if(action.equals("Add Equipment")) {
+						stuObj= (Equipment) objIs.readObject();
+						addEquipmentToFile(stuObj);
 						objOs.writeObject(true);
 					}
-					else if (action.equals("Find Student")) {
+					else if (action.equals("Retrieve Equipment")) {
 						String stuID= (String) objIs.readObject();
-						stuObj= findStudentById(stuID);
-						objOs.writeObject(stuObj);
 					}
 				} catch (ClassNotFoundException cle) {
 					cle.printStackTrace();
@@ -152,5 +135,5 @@ public class Server {
 		catch(IOException ioe) {
 			ioe.printStackTrace();
 		}
-	}
+	}//Allows the server to listen for requests continuously
 }

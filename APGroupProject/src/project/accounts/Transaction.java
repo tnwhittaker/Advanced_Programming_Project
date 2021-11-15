@@ -41,15 +41,15 @@ public class Transaction {
 		eID="";
 		cost=0;
 		connection= DBConnectorFactory.getDatabaseConnection();
-	}
+	}//Default constructor
 
 	public int getID() {
 		return ID;
-	}
+	}//Getter
 
 	public void setID(int iD) {
 		ID = iD;
-	}
+	}//Setter
 
 	public String geteID() {
 		return eID;
@@ -92,7 +92,7 @@ public class Transaction {
 			Logger.error("Record with "+eqID+" was not added to the database");
 			Logger.trace(e.getMessage());
 		}
-	}
+	}//Creates an equipment entry in the database
 	
 	public void readAll()
 	{
@@ -114,7 +114,8 @@ public class Transaction {
 		} catch (SQLException e) {
 			System.err.println("Error selecting all "+e.getMessage());
 		}
-	}
+	}//Unused but this would read all from the database and display it in the console
+	
 	
 	public void updateEquimentID(int ID, String newEqID)
 	{
@@ -136,7 +137,7 @@ public class Transaction {
 			Logger.error(newEqID+" was not updated in the database");
 			Logger.trace(e.getMessage());
 		}
-	}
+	}//Updates the Equipment ID of a particular record 
 	
 	public void updateDate(int ID, Date newDate)
 	{
@@ -158,7 +159,7 @@ public class Transaction {
 			Logger.error(newDate+" was not updated in the database");
 			Logger.trace(e.getMessage());
 		}
-	}
+	}//Updates the of date a particular record
 	
 	public void updateCost(int ID, int newCost)
 	{
@@ -180,7 +181,7 @@ public class Transaction {
 			Logger.error(newCost+" was not updated in the database");
 			Logger.trace(e.getMessage());
 		}
-	}
+	}//Updates the cost of a particular record
 	
 	public void delete(int ID)
 	{
@@ -201,7 +202,7 @@ public class Transaction {
 			Logger.error("Record with ID "+ID+" was not deleted from the database");
 			Logger.trace(e.getMessage());
 		}
-	}
+	}//Deletes a record
 	
 
 

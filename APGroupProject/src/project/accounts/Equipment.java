@@ -25,8 +25,8 @@ public class Equipment {
 	@Column(name="availability")
 	private short availability;
 	
-	@Column(name="eqID")
-	private String eqID;
+	@Column(name="cost")
+	private int cost;
 
 	
 	private static Connection connection=null;
@@ -41,7 +41,7 @@ public class Equipment {
 		name="";
 		categoryID=0;
 		availability=1;
-		eqID= "";
+		cost=0;
 		connection= DBConnectorFactory.getDatabaseConnection();
 	}
 
@@ -61,12 +61,12 @@ public class Equipment {
 		this.name= name;
 	}
 
-	public String getEqID() {
-		return eqID;
+	public int getCost() {
+		return cost;
 	}
 
-	public void setEqID(String eqID) {
-		this.eqID= eqID;
+	public void setCost(int cost) {
+		this.cost= cost;
 	}
 
 	
@@ -86,9 +86,9 @@ public class Equipment {
 		this.availability = availability;
 	}
 	
-	public void createEquipment(String name, int catID, short availability,String eqID)
+	public void createEquipment(String name, int catID, short availability,int cost)
 	{
-String insertSql= "INSERT INTO groupproject.equipment(name, category_id, availability,eqID) VALUES ('"+ name +"','"+catID+"','"+availability+"','"+eqID+"')";   
+String insertSql= "INSERT INTO groupproject.equipment(name, category_id, availability,cost) VALUES ('"+ name +"','"+catID+"','"+availability+"','"+cost+"')";   
 		try {
 			stmt= connection.createStatement();
 			numRowsAffected=stmt.executeUpdate(insertSql);
@@ -103,7 +103,7 @@ String insertSql= "INSERT INTO groupproject.equipment(name, category_id, availab
 			Logger.error(name+" was not added to the database");
 			Logger.trace(e.getMessage());
 		}
-	}
+	}//Creates an equipment entry in the database
 	
 	public void readAll()
 	{
@@ -118,14 +118,14 @@ String insertSql= "INSERT INTO groupproject.equipment(name, category_id, availab
 				String name=result.getString("name");
 				String catID=result.getString("category_id");
 				short availability=result.getShort("availability");
-				String eqID= result.getString("eqID");
-				System.out.println("ID#: "+id+"\nName: "+name+"\nCategory ID:"+catID+"\navailability: "+availability+"\nEquipment ID:"+eqID);    
+				int cost= result.getInt("cost");
+				System.out.println("ID#: "+id+"\nName: "+name+"\nCategory ID:"+catID+"\navailability: "+availability+"\nEquipment ID:"+cost);    
 			}
 			
 		} catch (SQLException e) {
 			System.err.println("Error selecting all "+e.getMessage());
 		}
-	}
+	}//Unused but this would read all from the database and display it in the console
 	
 	public void updateNAME(int id, String newName)
 	{
@@ -147,12 +147,12 @@ String insertSql= "INSERT INTO groupproject.equipment(name, category_id, availab
 			Logger.trace(e.getMessage());
 			
 		}
-	}
+	}//Updates the first name of a particular record 
 	
 	
-	public void updateEqID(int id, String newEQ)
+	public void updateCost(int id, int newCost)
 	{
-		String updateSQL="UPDATE equipment SET eqID='"+newEQ+"'WHERE id = "+id;
+		String updateSQL="UPDATE equipment SET cost='"+newCost+"'WHERE id = "+id;
 		try {
 			stmt=connection.createStatement();
 			numRowsAffected= stmt.executeUpdate(updateSQL);
@@ -170,11 +170,11 @@ String insertSql= "INSERT INTO groupproject.equipment(name, category_id, availab
 			Logger.trace(e.getMessage());
 			
 		}
-	}
+	}//Updates the cost of a particular record
 	
 	public void updateCATEGORY(int id, int newCATID)
 	{
-		String updateSQL="UPDATE users SET category'"+newCATID+"'WHERE id = "+id;
+		String updateSQL="UPDATE users SET category_id'"+newCATID+"'WHERE id = "+id;
 		try {
 			stmt=connection.createStatement();
 			numRowsAffected= stmt.executeUpdate(updateSQL);
@@ -191,7 +191,7 @@ String insertSql= "INSERT INTO groupproject.equipment(name, category_id, availab
 			Logger.error(newCATID+" was not updated to the database");
 			Logger.trace(e.getMessage());
 		}
-	}
+	}//Updates the category ID of a particular record
 	
 	public void updateAvail(int id, short availability)
 	{
@@ -211,7 +211,7 @@ String insertSql= "INSERT INTO groupproject.equipment(name, category_id, availab
 			Logger.error(availability+" was not updated in the database");
 			Logger.trace(e.getMessage());
 		}
-	}
+	}//Updates the availability of a particular record
 	
 	public void delete(int id)
 	{
@@ -232,7 +232,7 @@ String insertSql= "INSERT INTO groupproject.equipment(name, category_id, availab
 			Logger.error("Record with ID "+id+" was not deleted from the database");
 			Logger.trace(e.getMessage());
 		}
-	}
+	}//Deletes a record from the database
 	
 	public void getAllAvailable() {
 		String selectSQL="SELECT * FROM equipment WHERE availability=1";
@@ -254,7 +254,7 @@ String insertSql= "INSERT INTO groupproject.equipment(name, category_id, availab
 		} catch (SQLException e) {
 			System.err.println("Error selecting all "+e.getMessage());
 		}
-	}
+	}//Gets all records that are available in the database
 	
 	public void getAllUnavailable() {
 		String selectSQL="SELECT * FROM equipment WHERE availability=2";
@@ -276,7 +276,7 @@ String insertSql= "INSERT INTO groupproject.equipment(name, category_id, availab
 		} catch (SQLException e) {
 			System.err.println("Error selecting all "+e.getMessage());
 		}
-	}
+	}//Gets all records that are unavailable in the database
 
 	
 }

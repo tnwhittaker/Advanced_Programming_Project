@@ -1,4 +1,4 @@
-package client;
+package project.client;
 
 public class Driver {
 

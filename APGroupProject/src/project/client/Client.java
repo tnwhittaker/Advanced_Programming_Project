@@ -1,4 +1,4 @@
-package client;
+package project.client;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -61,38 +61,16 @@ public class Client {
 	}
 	
 	
-	public void sendStudent(Student stuObj){
-		try {
-			objOs.writeObject(stuObj);
-		} catch (IOException ie) {
-			ie.printStackTrace();
-		}
-		
-	}
-	
-	public void sendStudentID(String stuID){
-		try {
-			objOs.writeObject(stuID);
-		} catch (IOException ex) {
-			ex.printStackTrace();
-		}
-	}
 	
 	public void receiveResponse() {
 		try {
-			if(action.equalsIgnoreCase("Add Student")) {
+			if(action.equalsIgnoreCase("Create Equipment")) {
 				Boolean flag= (Boolean) objIs.readObject();
 				if(flag==true) {
 					JOptionPane.showMessageDialog(null, "Record added successfully","Add record status",JOptionPane.INFORMATION_MESSAGE);
 				}
 			}
-			if(action.equalsIgnoreCase("Find Student")) {
-				Student student= new Student();
-				student= (Student) objIs.readObject();
-				if(student==null){
-					JOptionPane.showMessageDialog(null, "Record could not be found","Record status error",JOptionPane.INFORMATION_MESSAGE);
-				}
-			}
+			
 		} catch (ClassCastException ce) {
 			ce.printStackTrace();
 		}
