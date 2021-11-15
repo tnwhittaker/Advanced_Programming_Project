@@ -4,11 +4,12 @@ import java.sql.*;
 
 import javax.persistence.*;
 import javax.swing.JOptionPane;
-import connectionFiles.DBConnectorFactory;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import accounts.User;
+import project.accounts.User;
+import project.connectionFiles.DBConnectorFactory;
 @Entity
 @Table(name="inventory")
 
