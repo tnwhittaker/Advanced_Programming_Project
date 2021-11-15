@@ -50,7 +50,6 @@ import javax.swing.event.ChangeListener;
 import javax.swing.JInternalFrame;
 
 import inventory.Inventory;
-import project.authentication.Login;
 import project.connectionFiles.DBConnectorFactory;
 
 public class EmployeeGUI {
@@ -90,8 +89,8 @@ public class EmployeeGUI {
 	}
 
 	private void initialize() {
-		frame = new JFrame("Grizzly's Entertainment - Employees");
-		frame.setBounds(100, 100, 871, 498);
+		frame = new JFrame("Grizzly's Entertainment - Employees Dashboard");
+		frame.setBounds(100, 200, 871, 520);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[]{0, 0};
@@ -141,11 +140,7 @@ public class EmployeeGUI {
 		panelInventory.add(chckbxEditMode, gbc_chckbxEditMode);
 		
 		JButton btnUpdateItem = new JButton("Update Item");
-		btnUpdateItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				update();
-			}
-		});
+		
 		
 		JButton btnNewItem = new JButton("New Item");
 		GridBagConstraints gbc_btnNewItem = new GridBagConstraints();
@@ -194,7 +189,7 @@ public class EmployeeGUI {
 		JScrollPane scrollPane = new JScrollPane();
 		GridBagConstraints gbc_scrollPane = new GridBagConstraints();
 		gbc_scrollPane.gridwidth = 3;
-		gbc_scrollPane.gridheight = 4;
+		gbc_scrollPane.gridheight = 5;
 		gbc_scrollPane.anchor = GridBagConstraints.NORTH;
 		gbc_scrollPane.insets = new Insets(0, 0, 0, 5);
 		gbc_scrollPane.fill = GridBagConstraints.BOTH;
@@ -214,6 +209,8 @@ public class EmployeeGUI {
 					"ID","Name", "Category", "Status"
 				}
 			));
+
+		
 		
 			
 		JComboBox comboBoxItemCategory = new JComboBox(itemType);
@@ -224,7 +221,8 @@ public class EmployeeGUI {
 		gbc_comboBoxItemCategory.gridx = 1;
 		gbc_comboBoxItemCategory.gridy = 0;
 		panelInventory.add(comboBoxItemCategory, gbc_comboBoxItemCategory);
-		table.setModel(new DefaultTableModel(null,new String[] {"ID","Name", "Category", "Status"}));
+		table.setModel(new DefaultTableModel(null,new String[] {"ID","Name", "Category", "Status", "Cost"}));
+		
 		getAllEquipment(table);
 		comboBoxItemCategory.addActionListener(new ActionListener() {
 			@Override
@@ -232,28 +230,34 @@ public class EmployeeGUI {
 				String s=(String) comboBoxItemCategory.getSelectedItem();
 				switch (s) {
 				case "All":
-					table.setModel(new DefaultTableModel(null,new String[] {"ID","Name", "Category", "Status"}));
+					table.setModel(new DefaultTableModel(null,new String[] {"ID","Name", "Category", "Status","Cost"}));
 					getAllEquipment(table);
 					break;
 				case "Lighting":
-					table.setModel(new DefaultTableModel(null,new String[] {"ID","Name", "Status"}));
+					table.setModel(new DefaultTableModel(null,new String[] {"ID","Name", "Status","Cost"}));
 					getEquipmentByCategory(table, s);
 						break;
 				case "Power":
-					table.setModel(new DefaultTableModel(null,new String[] {"ID","Name", "Status"}));
+					table.setModel(new DefaultTableModel(null,new String[] {"ID","Name", "Status","Cost"}));
 					getEquipmentByCategory(table, s);
 						break;
 				case "Sound":
-					table.setModel(new DefaultTableModel(null,new String[] {"ID","Name", "Status"}));
+					table.setModel(new DefaultTableModel(null,new String[] {"ID","Name", "Status","Cost"}));
 					getEquipmentByCategory(table, s);
 						break;		
 				case "Staging":
-					table.setModel(new DefaultTableModel(null,new String[] {"ID","Name", "Status"}));
+					table.setModel(new DefaultTableModel(null,new String[] {"ID","Name", "Status","Cost"}));
 					getEquipmentByCategory(table, s);
 						break;
 				}
 			}
 		});	
+
+		btnUpdateItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				update(table);
+			}
+		});
 		
 		JPanel panelRequestsHub = new JPanel();
 		tabbedPane.addTab("Requests Hub", null, panelRequestsHub, null);
@@ -357,6 +361,7 @@ public class EmployeeGUI {
 	
 	public void getEquipmentByCategory(JTable table, String category) {
 		try {  
+			table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			connection= DBConnectorFactory.getDatabaseConnection();
 			stmt= connection.createStatement();
 			String quote="'";
@@ -370,14 +375,15 @@ public class EmployeeGUI {
 			while(result.next()) {
 				String ID= result.getString("id");
 				String Name= result.getString("name"); 
+				String Cost = result.getString("cost");
 				if(result.getInt("availability") == 1) {
 					String Availability = "Available";
-					String jtbledata[]= {ID, Name,Availability};
+					String jtbledata[]= {ID, Name,Availability,Cost};
 					DefaultTableModel tblModel= (DefaultTableModel)table.getModel();
 					tblModel.addRow(jtbledata);
 				}else {
 					String Availability = "Unavailable";
-					String jtbledata[]= {ID, Name,Availability};
+					String jtbledata[]= {ID, Name,Availability,Cost};
 					DefaultTableModel tblModel= (DefaultTableModel)table.getModel();
 					tblModel.addRow(jtbledata);
 				}	
@@ -394,23 +400,26 @@ public class EmployeeGUI {
 
 	public void getAllEquipment(JTable table) {
 		try {  
+			
+			table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			connection= DBConnectorFactory.getDatabaseConnection();
 			stmt= connection.createStatement();
-			String searchSQL= "SELECT e.id, e.name, c.name, e.availability FROM category as c INNER JOIN equipment as e ON e.category_id = c.id";
+			String searchSQL= "SELECT e.id, e.name, c.name, e.availability, e.cost FROM category as c INNER JOIN equipment as e ON e.category_id = c.id";
 			
 			result= stmt.executeQuery(searchSQL);
 			while(result.next()) {
 				String ID= result.getString("id");
 				String Name= result.getString("e.name"); 
 				String Category = result.getString("c.name");
+				String Cost = result.getString("cost");
 				if(result.getInt("availability") == 1) {
 					String Availability = "Available";
-					String jtbledata[]= {ID, Name,Category,Availability};
+					String jtbledata[]= {ID, Name,Category,Availability,Cost};
 					DefaultTableModel tblModel= (DefaultTableModel)table.getModel();
 					tblModel.addRow(jtbledata);
 				}else {
 					String Availability = "Unavailable";
-					String jtbledata[]= {ID, Name,Category,Availability};
+					String jtbledata[]= {ID, Name,Category,Availability,Cost};
 					DefaultTableModel tblModel= (DefaultTableModel)table.getModel();
 					tblModel.addRow(jtbledata);
 				}	
@@ -426,6 +435,8 @@ public class EmployeeGUI {
 	}
 
 	public void getAllRequests(JTable table){
+		
+		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		//connects to the database
 		connection = DBConnectorFactory.getDatabaseConnection();
 				
@@ -459,6 +470,7 @@ public class EmployeeGUI {
 							equipMoreResult.getFloat("cost"),
 							user.getString("customer_id"),
 							result.getInt("approve") == 0 ? "Unapproved" : "Approved",
+							
 					};//displays and formats rows that will be inserted in the table
 					DefaultTableModel tblModel= (DefaultTableModel)table.getModel();
 					tblModel.addRow(tableData);//add row wid information to table
@@ -497,36 +509,7 @@ public void AddNewItem() {
 		gbc_lblNewLabel.gridy = 0;
 		itemIDLbl.add(lblNewLabel, gbc_lblNewLabel);
 
-		JLabel itemID = new JLabel("Item ID:");
-		itemID.setFont(new Font("Tahoma", Font.BOLD, 11));
-		GridBagConstraints gbc_itemID = new GridBagConstraints();
-		gbc_itemID.insets = new Insets(0, 0, 5, 5);
-		gbc_itemID.gridx = 1;
-		gbc_itemID.gridy = 3;
-		//itemIDLbl.add(itemID, gbc_itemID);
-
-		JTextField itemIDTxt = new JTextField();
-		itemIDTxt.setToolTipText("Enter Item ID:");
-		GridBagConstraints gbc_itemIDTxt = new GridBagConstraints();
-		gbc_itemIDTxt.gridwidth = 2;
-		gbc_itemIDTxt.insets = new Insets(0, 0, 5, 5);
-		gbc_itemIDTxt.fill = GridBagConstraints.HORIZONTAL;
-		gbc_itemIDTxt.gridx = 2;
-		gbc_itemIDTxt.gridy = 3;
-		//itemIDLbl.add(itemIDTxt, gbc_itemIDTxt);
 		ButtonGroup status = new ButtonGroup();
-		
-		
-		
-		
-		
-		
-		
-		/*
-		 * 
-		 * JLabel ID = new JLabel("Item ID:"); ID.setBounds(392, 145, 110, 20);
-		 * addNewItem.add(ID);
-		 */
 
 		JLabel itemName = new JLabel("Item Name:");
 		itemName.setFont(new Font("Tahoma", Font.BOLD, 11));
@@ -557,7 +540,7 @@ public void AddNewItem() {
 
 		JComboBox categoryComboBox = new JComboBox();
 		categoryComboBox.setModel(
-				new DefaultComboBoxModel(new String[] { "", "Lighting", "Power", "Sound", "Staging" }));
+				new DefaultComboBoxModel(new String[] {"Lighting", "Power", "Sound", "Staging" }));
 		GridBagConstraints gbc_categoryComboBox = new GridBagConstraints();
 		gbc_categoryComboBox.gridwidth = 2;
 		gbc_categoryComboBox.insets = new Insets(0, 0, 5, 5);
@@ -638,11 +621,11 @@ public void AddNewItem() {
 		gbc_DORLbl.gridy = 11;
 		itemIDLbl.add(DORLbl, gbc_DORLbl);
 
-		//JTextField DOR = new JTextField();
+		
 		SpinnerModel value =  new SpinnerNumberModel((double) 0.0,null,null,(double) 0.1);//minimum value  
 		JSpinner spinner = new JSpinner( value);  
                 
-		//DOR.setToolTipText("DD/MM/YYYY");
+		
 		GridBagConstraints gbc_DOR = new GridBagConstraints();
 		gbc_DOR.gridwidth = 2;
 		gbc_DOR.insets = new Insets(0, 0, 5, 5);
@@ -650,7 +633,7 @@ public void AddNewItem() {
 		gbc_DOR.gridx = 2;
 		gbc_DOR.gridy = 11;
 		itemIDLbl.add(spinner, gbc_DOR);
-		//spinner.setColumns(10);
+		
 		
 		JButton exitBtn = new JButton("EXIT");
 		exitBtn.addActionListener(new ActionListener() {
@@ -680,7 +663,6 @@ public void AddNewItem() {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					connection= DBConnectorFactory.getDatabaseConnection();
-					submit.setToolTipText("Hello" + itemNameTxt.getText());
 					String categoryIdQuery = "SELECT id FROM category where name='"+(String) categoryComboBox.getSelectedItem()+"'";//get id of currently signed in user
 					Statement stmt1 = connection.createStatement();
 					ResultSet cid = stmt1.executeQuery(categoryIdQuery);
@@ -708,10 +690,9 @@ public void AddNewItem() {
 
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void update() {
+	public void update(JTable table) {
 
 		JPanel update;
-		JTextField updateToTxtField;
 		JFrame updatePanel = new JFrame("Grizzly's Entertainment - Employees/Update");
 		updatePanel.setBounds(100, 100, 519, 526);
 		updatePanel.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -725,125 +706,138 @@ public void AddNewItem() {
 		gbl_panel.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
 		update.setLayout(gbl_panel);
 
+		JLabel itemName = new JLabel("Item Name:");
+		itemName.setFont(new Font("Tahoma", Font.BOLD, 11));
+		GridBagConstraints gbc_itemName = new GridBagConstraints();
+		gbc_itemName.gridy = 5;
+		gbc_itemName.insets = new Insets(0, 0, 5, 5);
+		gbc_itemName.gridx = 1;
+		update.add(itemName, gbc_itemName);
 
-		JLabel UpdateComboBoxLbl = new JLabel("Choose what to Update:");
-		UpdateComboBoxLbl.setFont(new Font("Tahoma", Font.BOLD, 11));
-		GridBagConstraints gbc_UpdateComboBoxLbl = new GridBagConstraints();
-		gbc_UpdateComboBoxLbl.fill = GridBagConstraints.HORIZONTAL;
-		gbc_UpdateComboBoxLbl.insets = new Insets(0, 0, 5, 5);
-		gbc_UpdateComboBoxLbl.gridx = 1;
-		gbc_UpdateComboBoxLbl.gridy = 1;
-		update.add(UpdateComboBoxLbl, gbc_UpdateComboBoxLbl);
+		JTextField itemNameTxt = new JTextField();
+		itemNameTxt.setToolTipText("Add the name of the item");
+		itemNameTxt.setFont(new Font("Tahoma", Font.BOLD, 11));
+		GridBagConstraints gbc_itemNameTxt = new GridBagConstraints();
+		gbc_itemNameTxt.gridy = 5;
+		gbc_itemNameTxt.gridwidth = 2;
+		gbc_itemNameTxt.fill = GridBagConstraints.BOTH;
+		gbc_itemNameTxt.insets = new Insets(0, 0, 5, 5);
+		gbc_itemNameTxt.gridx = 2;
+		itemNameTxt.setText((String) table.getValueAt(table.getSelectedRow() , 1));//set equipment name to what it was in the table
+		update.add(itemNameTxt, gbc_itemNameTxt);
 
-	
+		JLabel categorylbl = new JLabel("Category:");
+		categorylbl.setFont(new Font("Tahoma", Font.BOLD, 11));
+		GridBagConstraints gbc_categorylbl = new GridBagConstraints();
+		gbc_categorylbl.insets = new Insets(0, 0, 5, 5);
+		gbc_categorylbl.gridx = 1;
+		gbc_categorylbl.gridy = 7;
+		update.add(categorylbl, gbc_categorylbl);
 
-		JComboBox updateComboBox = new JComboBox();
-		updateComboBox.setModel(new DefaultComboBoxModel
-			(new String[] { "", "itemName", "category", "status", "dateOfRegistration" }));
-		GridBagConstraints gbc_updateComboBox = new GridBagConstraints();
-		gbc_updateComboBox.gridwidth = 2;
-		gbc_updateComboBox.insets = new Insets(0, 0, 5, 5);
-		gbc_updateComboBox.fill = GridBagConstraints.HORIZONTAL;
-		gbc_updateComboBox.gridx = 2;
-		gbc_updateComboBox.gridy = 1;
-		update.add(updateComboBox, gbc_updateComboBox);
-		updateComboBox.addActionListener(new ActionListener() {
+		JComboBox categoryComboBox = new JComboBox();
+		categoryComboBox.setModel(
+				new DefaultComboBoxModel(new String[] { "Lighting", "Power", "Sound", "Staging" }));
+		categoryComboBox.setSelectedItem((String) table.getValueAt(table.getSelectedRow() , 2));//set already selected category to what it was in the table
+		GridBagConstraints gbc_categoryComboBox = new GridBagConstraints();
+		gbc_categoryComboBox.gridwidth = 2;
+		gbc_categoryComboBox.insets = new Insets(0, 0, 5, 5);
+		gbc_categoryComboBox.fill = GridBagConstraints.HORIZONTAL;
+		gbc_categoryComboBox.gridx = 2;
+		gbc_categoryComboBox.gridy = 7;
+		update.add(categoryComboBox, gbc_categoryComboBox);
+		categoryComboBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String s = (String) updateComboBox.getSelectedItem();
+				String s = (String) categoryComboBox.getSelectedItem();
 				switch (s) {
-				case "All":
-					getComboBoxAction = "All";
+				case "Lighting":
+					getCategoryOptSlctd = "lighting";
 					break;
 
-				case "itemName":
-					getComboBoxAction = "itemName";
+				case "Power":
+					getCategoryOptSlctd = "power";
 					break;
 
-				case "category":
-					getComboBoxAction = "category";
+				case "Sound":
+					getCategoryOptSlctd = "Sound";
 					break;
 
-				case "status":
-					getComboBoxAction = "status";
+				case "Staging":
+					getCategoryOptSlctd = "Staging";
+
 					break;
 
-				case "dateOfRegistration":
-					getComboBoxAction = "DOR";
-					break;
 				}
 			}
 		});
 
-		JLabel lblNewLabel = new JLabel("Enter Item ID:");
-		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblNewLabel.setToolTipText("Delete from database");
-		GridBagConstraints gbc_lblNewLabel = new GridBagConstraints();
-		gbc_lblNewLabel.insets = new Insets(0, 0, 5, 5);
-		gbc_lblNewLabel.gridx = 1;
-		gbc_lblNewLabel.gridy = 2;
-		update.add(lblNewLabel, gbc_lblNewLabel);
+		ButtonGroup status = new ButtonGroup();
 
-		JTextField itemIDTxtField = new JTextField();
-		GridBagConstraints gbc_itemIDTxtField = new GridBagConstraints();
-		gbc_itemIDTxtField.gridwidth = 2;
-		gbc_itemIDTxtField.insets = new Insets(0, 0, 5, 5);
-		gbc_itemIDTxtField.fill = GridBagConstraints.HORIZONTAL;
-		gbc_itemIDTxtField.gridx = 2;
-		gbc_itemIDTxtField.gridy = 2;
-		update.add(itemIDTxtField, gbc_itemIDTxtField);
-		itemIDTxtField.setColumns(10);
+		JLabel statusLbl = new JLabel("Status");
+		statusLbl.setFont(new Font("Tahoma", Font.BOLD, 11));
+		GridBagConstraints gbc_statusLbl = new GridBagConstraints();
+		gbc_statusLbl.insets = new Insets(0, 0, 5, 5);
+		gbc_statusLbl.gridx = 1;
+		gbc_statusLbl.gridy = 9;
+		update.add(statusLbl, gbc_statusLbl);
 
-		JLabel updateToLbl = new JLabel("Update to:");
-		updateToLbl.setFont(new Font("Tahoma", Font.BOLD, 11));
-		GridBagConstraints gbc_updateToLbl = new GridBagConstraints();
-		gbc_updateToLbl.insets = new Insets(0, 0, 5, 5);
-		gbc_updateToLbl.gridx = 1;
-		gbc_updateToLbl.gridy = 3;
-		update.add(updateToLbl, gbc_updateToLbl);
+		JRadioButton rdbtnDecline = new JRadioButton("Available");
+		rdbtnDecline.setActionCommand("Available");
+		GridBagConstraints gbc_rdbtnDecline = new GridBagConstraints();
+		gbc_rdbtnDecline.insets = new Insets(0, 0, 5, 5);
+		gbc_rdbtnDecline.gridx = 2;
+		gbc_rdbtnDecline.gridy = 9;
+		update.add(rdbtnDecline, gbc_rdbtnDecline);
+		status.add(rdbtnDecline);
+		if (rdbtnDecline.isSelected()) {
+			Status1 = "Available";
+		}
 
-		updateToTxtField = new JTextField();
-		GridBagConstraints gbc_updateToTxtField = new GridBagConstraints();
-		gbc_updateToTxtField.gridwidth = 2;
-		gbc_updateToTxtField.insets = new Insets(0, 0, 5, 5);
-		gbc_updateToTxtField.fill = GridBagConstraints.HORIZONTAL;
-		gbc_updateToTxtField.gridx = 2;
-		gbc_updateToTxtField.gridy = 3;
-		update.add(updateToTxtField, gbc_updateToTxtField);
-		updateToTxtField.setColumns(10);
+		JRadioButton rdbtnApproved = new JRadioButton("Unavailable");
+		rdbtnApproved.setActionCommand("Unavailable");
+		GridBagConstraints gbc_rdbtnApproved = new GridBagConstraints();
+		gbc_rdbtnApproved.insets = new Insets(0, 0, 5, 5);
+		gbc_rdbtnApproved.gridx = 3;
+		gbc_rdbtnApproved.gridy = 9;
+		update.add(rdbtnApproved, gbc_rdbtnApproved);
+		status.add(rdbtnApproved);
+		if (rdbtnApproved.isSelected()) {
+			Status1 = "Unavailable";
+		}
 
-		JButton clearBtn = new JButton("CLEAR");
-		GridBagConstraints gbc_clearBtn = new GridBagConstraints();
-		gbc_clearBtn.insets = new Insets(0, 0, 5, 5);
-		gbc_clearBtn.gridx = 2;
-		gbc_clearBtn.gridy = 4;
-		update.add(clearBtn, gbc_clearBtn);
-		clearBtn.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				updatePanel.setVisible(false);
-				frame.setVisible(true);
-			}
-
-		});
+		if(table.getValueAt(table.getSelectedRow() , 3) == "Available"){
+			rdbtnDecline.setSelected(true);
+		}else{
+			rdbtnApproved.setSelected(true);
+		}
 		
-		JButton exit = new JButton("EXIT UPDATE");
-		GridBagConstraints gbc_exit = new GridBagConstraints();
-		gbc_exit.anchor = GridBagConstraints.NORTHEAST;
-		gbc_exit.insets = new Insets(0, 0, 5, 5);
-		gbc_exit.gridx = 3;
-		gbc_exit.gridy = 4;
-		update.add(exit, gbc_exit);
-		exit.addActionListener(new ActionListener() {
+		JLabel DORLbl = new JLabel("Equipment Cost:");
+		DORLbl.setFont(new Font("Tahoma", Font.BOLD, 11));
+		GridBagConstraints gbc_DORLbl = new GridBagConstraints();
+		gbc_DORLbl.insets = new Insets(0, 0, 5, 5);
+		gbc_DORLbl.gridx = 1;
+		gbc_DORLbl.gridy = 90;
+		update.add(DORLbl, gbc_DORLbl);
 
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				updatePanel.setVisible(false);
-				frame.setVisible(true);
-			}
+		
+		SpinnerModel value =  new SpinnerNumberModel((double) 0.0,null,null,(double) 0.1);//minimum value  
+		JSpinner spinner = new JSpinner( value);  
+         
+		//set Values to Values from the Row selected in the previous frame
+		if((String) table.getValueAt(table.getSelectedRow() , 4) == null){
+			value.setValue(0.0);
+		}else{
+			value.setValue(Double.parseDouble((String) table.getValueAt(table.getSelectedRow() , 4)));
+		}
+		
 
-		});
+		GridBagConstraints gbc_DOR = new GridBagConstraints();
+		gbc_DOR.gridwidth = 2;
+		gbc_DOR.insets = new Insets(0, 0, 5, 5);
+		gbc_DOR.fill = GridBagConstraints.HORIZONTAL;
+		gbc_DOR.gridx = 2;
+		gbc_DOR.gridy = 90;
+		update.add(spinner, gbc_DOR);
 
 		JButton btnCancel = new JButton("CANCEL");
 		btnCancel.setToolTipText("Cancle");
@@ -854,7 +848,7 @@ public void AddNewItem() {
 		gbc_btnCancel.fill = GridBagConstraints.BOTH;
 		gbc_btnCancel.insets = new Insets(0, 0, 0, 5);
 		gbc_btnCancel.gridx = 2;
-		gbc_btnCancel.gridy = 8;
+		gbc_btnCancel.gridy = 150;
 		update.add(btnCancel, gbc_btnCancel);
 		btnCancel.addActionListener(new ActionListener() {
 
@@ -875,42 +869,33 @@ public void AddNewItem() {
 		gbc_btnUpdate.gridheight = 2;
 		gbc_btnUpdate.fill = GridBagConstraints.BOTH;
 		gbc_btnUpdate.gridx = 3;
-		gbc_btnUpdate.gridy = 8;
+		gbc_btnUpdate.gridy = 150;
 		update.add(btnUpdate, gbc_btnUpdate);
 		btnUpdate.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				updatePanel.setVisible(false);
-				frame.setVisible(true);
-				switch (getComboBoxAction) {
-				case "All":
-					System.out.print("God, I Love you!!!!!!");
-					break;
+				try {
+					connection= DBConnectorFactory.getDatabaseConnection();
+					String categoryIdQuery = "SELECT id FROM category where name='"+(String) categoryComboBox.getSelectedItem()+"'";//get id of currently signed in user
+					Statement stmt1 = connection.createStatement();
+					ResultSet cid = stmt1.executeQuery(categoryIdQuery);
+					cid.next();
 
-				case "itemName":
-					invent.updateItemName(itemIDTxtField.getText(), updateToTxtField.getText());
-					itemIDTxtField.setText("");
-					updateToTxtField.setText("");
-					break;
+					String statusQuery = "SELECT id FROM rental_status where status='"+status.getSelection().getActionCommand()+"'";//get id of currently signed in user
+					Statement stmt2 = connection.createStatement();
+					ResultSet sid = stmt2.executeQuery(statusQuery);
+					sid.next();
 
-				case "category":
-					invent.updateCategory(itemIDTxtField.getText(), updateToTxtField.getText());
-					itemIDTxtField.setText("");
-					updateToTxtField.setText("");
-					break;
+					//String Query_String = "UPDATE equipment SET(name,category_id,availability,cost) WHERE ('"+itemNameTxt.getText()+"','"+cid.getInt("id")+"','" + sid.getInt("id")+"','"+ (double) spinner.getValue()+ "')";
+					String Update_Query = "UPDATE equipment SET name = '" + itemNameTxt.getText() + "', category_id='"+cid.getInt("id")+"',availability='" + sid.getInt("id")+"',cost='"+(double) spinner.getValue()+ "' Where id='"+(String) table.getValueAt(table.getSelectedRow() , 0)+"'";
+					stmt.executeLargeUpdate(Update_Query);
 
-				case "status":
-					invent.updateStatus(itemIDTxtField.getText(), updateToTxtField.getText());
-					itemIDTxtField.setText("");
-					updateToTxtField.setText("");
-					break;
-
-				case "dateOfRegistration":
-					invent.updateDateOfRequirement(itemIDTxtField.getText(), updateToTxtField.getText());
-					itemIDTxtField.setText("");
-					updateToTxtField.setText("");
-					break;
+					JOptionPane.showMessageDialog(update, "Equipment record has been updated");
+					
+					
+				} catch (Exception e1) {
+					e1.printStackTrace();
 				}
 			}
 		});
