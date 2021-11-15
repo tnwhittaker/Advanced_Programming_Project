@@ -10,7 +10,6 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.text.BadLocationException;
 
 import project.accounts.*;
-import project.authentication.Login;
 import project.connectionFiles.DBConnectorFactory;
 
 import org.apache.logging.log4j.LogManager;

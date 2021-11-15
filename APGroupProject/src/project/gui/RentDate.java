@@ -16,7 +16,6 @@ import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
 
-import project.authentication.Login;
 import project.connectionFiles.DBConnectorFactory;
 
 import javax.swing.JLabel;
