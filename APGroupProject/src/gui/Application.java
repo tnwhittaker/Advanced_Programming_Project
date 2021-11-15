@@ -393,20 +393,25 @@ public class Application {
 		Request.getContentPane().add(search);
 		
 		JButton selectButton = new JButton("Rent");
-		selectButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				String id = (String) table.getValueAt(table.getSelectedRow() , 0);
-				String name = (String) table.getValueAt(table.getSelectedRow() , 1);
-				String status = (String) table.getValueAt(table.getSelectedRow() , 2);
-				rent.setId(id);
-				rent.setName(name);
-				rent.setStatus(status);
-				rent.setCurrentUser(custidtxt.getText());
-				rent.setVisible(true);
-				
-	            
-			}
-		});
+		
+			selectButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) throws ArrayIndexOutOfBoundsException {
+					// if()
+					System.out.println(table.getValueAt(table.getSelectedRow() , 0));
+					String id = (String) table.getValueAt(table.getSelectedRow() , 0);
+					String name = (String) table.getValueAt(table.getSelectedRow() , 1);
+					String status = (String) table.getValueAt(table.getSelectedRow() , 2);
+					rent.setId(id);
+					rent.setName(name);
+					rent.setStatus(status);
+					rent.setCurrentUser(custidtxt.getText());
+					rent.setVisible(true);
+					
+					
+				}
+			});
+		
+		
 		selectButton.setBounds(478, 310, 89, 23);
 		Request.getContentPane().add(selectButton);
 		
@@ -502,7 +507,7 @@ public class Application {
 				userExe.next();//continue operation
 				String allTrans = "SELECT * FROM transaction where customer_id=" + userExe.getInt("id");//Query to get transactions of currently signed in use
 				result = stmt.executeQuery(allTrans);//execte query with first statement
-				while(result.next()) {//continue operation
+				while(result.next()) {//continue operation if we didnt get a null response from query
 					String equipMoreInfo = "Select name,category_id,cost from equipment where id="+result.getInt("equipment_id");//query to retrieve equipment name and category id for further querying
 					ResultSet equipMoreResult = transtmt.executeQuery(equipMoreInfo);//execute above query to retrieve equipment info and category Id for next query
 					while(equipMoreResult.next()) {//continue operation
@@ -599,7 +604,14 @@ public class Application {
 		View.setVisible(true);
 		ViewAll.setVisible(true);
 		Request.setVisible(true);
-		
+
+		signOut.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				System.exit(0);
+				
+			}
+		});
+
 	}
 	
 	

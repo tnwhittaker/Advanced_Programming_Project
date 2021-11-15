@@ -9,6 +9,7 @@ import javax.swing.JFrame;
 import java.awt.GridBagLayout;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
 import java.awt.GridBagConstraints;
 import javax.swing.JPanel;
@@ -18,9 +19,12 @@ import javax.swing.JComboBox;
 import javax.swing.JList;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.SpinnerModel;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.JButton;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
@@ -29,6 +33,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.Random;
 
 import javax.swing.JTable;
@@ -39,6 +44,8 @@ import connectionFiles.DBConnectorFactory;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.JInternalFrame;
 
 import inventory.Inventory;
@@ -86,7 +93,7 @@ public class EmployeeGUI {
 	 */
 	private void initialize() {
 		frame = new JFrame("Grizzly's Entertainment - Employees");
-		frame.setBounds(100, 100, 519, 526);
+		frame.setBounds(100, 100, 871, 498);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[]{0, 0};
@@ -145,10 +152,6 @@ public class EmployeeGUI {
 			}
 		});
 		
-//		JScrollPane scrollPane1 = new JScrollPane();
-//		scrollPane1.setBounds(165, 81, 402, 206);
-//		frame.getContentPane().add(scrollPane1);
-		
 		JButton btnNewItem = new JButton("New Item");
 		GridBagConstraints gbc_btnNewItem = new GridBagConstraints();
 		gbc_btnNewItem.anchor = GridBagConstraints.SOUTH;
@@ -195,7 +198,7 @@ public class EmployeeGUI {
 		
 		JScrollPane scrollPane = new JScrollPane();
 		GridBagConstraints gbc_scrollPane = new GridBagConstraints();
-		gbc_scrollPane.gridwidth = 2;
+		gbc_scrollPane.gridwidth = 3;
 		gbc_scrollPane.gridheight = 4;
 		gbc_scrollPane.anchor = GridBagConstraints.NORTH;
 		gbc_scrollPane.insets = new Insets(0, 0, 0, 5);
@@ -216,9 +219,7 @@ public class EmployeeGUI {
 					"ID","Name", "Category", "Status"
 				}
 			));
-		table.getColumnModel().getColumn(0).setResizable(false);
-		table.getColumnModel().getColumn(1).setResizable(false);
-		table.getColumnModel().getColumn(2).setResizable(false);
+		
 			
 		JComboBox comboBoxItemCategory = new JComboBox(itemType);
 		comboBoxItemCategory.setModel(new DefaultComboBoxModel(new String[] {"All", "Lighting", "Power", "Sound", "Staging"}));
@@ -267,6 +268,33 @@ public class EmployeeGUI {
 		gbl_panelRequestsHub.columnWeights = new double[]{1.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		gbl_panelRequestsHub.rowWeights = new double[]{0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		panelRequestsHub.setLayout(gbl_panelRequestsHub);
+
+		JScrollPane requestScrollPane = new JScrollPane();
+		GridBagConstraints gbc_sequestScrollPane = new GridBagConstraints();
+		gbc_sequestScrollPane.gridwidth = 3;
+		gbc_sequestScrollPane.gridheight = 4;
+		gbc_sequestScrollPane.anchor = GridBagConstraints.NORTH;
+		gbc_sequestScrollPane.insets = new Insets(0, 0, 0, 5);
+		gbc_sequestScrollPane.fill = GridBagConstraints.BOTH;
+		gbc_sequestScrollPane.gridx = 0;
+		gbc_sequestScrollPane.gridy = 1;
+		panelInventory.add(requestScrollPane, gbc_sequestScrollPane);
+		
+		JTable requestTable = new JTable();
+		requestTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		requestScrollPane.setViewportView(requestTable);
+		
+		requestTable.setModel(new DefaultTableModel(
+				new Object[][] {
+					
+				},
+				new String[] {
+					"Equipment Name", "Category", "Date", "Cost", "Customer", "Status"
+				}
+			));
+
+		requestTable.setModel(new DefaultTableModel(null,new String[] {"Equipment Name", "Category", "Date", "Cost", "Customer", "Status"}));
+		getAllRequests(requestTable);
 		
 		JLabel lblActiveRequests = new JLabel("Active Requests : ");
 		GridBagConstraints gbc_lblActiveRequests = new GridBagConstraints();
@@ -285,113 +313,16 @@ public class EmployeeGUI {
 		gbc_comboBox.gridy = 0;
 		panelRequestsHub.add(comboBox, gbc_comboBox);
 		
-		tableRequestedItems = new JTable();
-		tableRequestedItems.setModel(new DefaultTableModel(
-				new Object[][] {
-					{"ItemName", "ItemID", "Category", "Status"},
-				},
-				new String[] {
-					"ItemName", "ItemID", "Category", "Status"
-				}
-				
-			));
-		
 		GridBagConstraints gbc_tableRequestedItems = new GridBagConstraints();
 		gbc_tableRequestedItems.gridheight = 7;
-		gbc_tableRequestedItems.gridwidth = 2;
+		gbc_tableRequestedItems.gridwidth = 7;
 		gbc_tableRequestedItems.insets = new Insets(0, 0, 5, 5);
 		gbc_tableRequestedItems.fill = GridBagConstraints.BOTH;
 		gbc_tableRequestedItems.gridx = 0;
 		gbc_tableRequestedItems.gridy = 1;
-		panelRequestsHub.add(tableRequestedItems, gbc_tableRequestedItems);
+		panelRequestsHub.add(requestScrollPane, gbc_tableRequestedItems);	
 		
-		JLabel lblRequestDate = new JLabel("Request Date :");
-		GridBagConstraints gbc_lblRequestDate = new GridBagConstraints();
-		gbc_lblRequestDate.anchor = GridBagConstraints.SOUTH;
-		gbc_lblRequestDate.fill = GridBagConstraints.HORIZONTAL;
-		gbc_lblRequestDate.insets = new Insets(0, 0, 5, 5);
-		gbc_lblRequestDate.gridx = 3;
-		gbc_lblRequestDate.gridy = 1;
-		panelRequestsHub.add(lblRequestDate, gbc_lblRequestDate);
-		
-		JLabel lblDate = new JLabel("dd/mm/yyyy");
-		GridBagConstraints gbc_lblDate = new GridBagConstraints();
-		gbc_lblDate.anchor = GridBagConstraints.SOUTHWEST;
-		gbc_lblDate.insets = new Insets(0, 0, 5, 0);
-		gbc_lblDate.gridx = 4;
-		gbc_lblDate.gridy = 1;
-		panelRequestsHub.add(lblDate, gbc_lblDate);
-		
-		JLabel lblRequestCost = new JLabel("Total Cost :");
-		GridBagConstraints gbc_lblRequestCost = new GridBagConstraints();
-		gbc_lblRequestCost.anchor = GridBagConstraints.NORTHWEST;
-		gbc_lblRequestCost.insets = new Insets(0, 0, 5, 5);
-		gbc_lblRequestCost.gridx = 3;
-		gbc_lblRequestCost.gridy = 2;
-		panelRequestsHub.add(lblRequestCost, gbc_lblRequestCost);
-		
-		JLabel lblCost = new JLabel("$ 0.00");
-		GridBagConstraints gbc_lblCost = new GridBagConstraints();
-		gbc_lblCost.anchor = GridBagConstraints.NORTHWEST;
-		gbc_lblCost.insets = new Insets(0, 0, 5, 0);
-		gbc_lblCost.gridx = 4;
-		gbc_lblCost.gridy = 2;
-		panelRequestsHub.add(lblCost, gbc_lblCost);
-		
-		//ButtonGroup "approval" moved once, it'll probably move again. Just check if it is above the radioButtons
-				ButtonGroup approval=new ButtonGroup();
-		
-		JRadioButton rdbtnApproval = new JRadioButton("Approved");
-		GridBagConstraints gbc_rdbtnApproval = new GridBagConstraints();
-		gbc_rdbtnApproval.anchor = GridBagConstraints.NORTH;
-		gbc_rdbtnApproval.fill = GridBagConstraints.HORIZONTAL;
-		gbc_rdbtnApproval.insets = new Insets(0, 0, 5, 5);
-		gbc_rdbtnApproval.gridx = 3;
-		gbc_rdbtnApproval.gridy = 4;
-		panelRequestsHub.add(rdbtnApproval, gbc_rdbtnApproval);
-		approval.add(rdbtnApproval);
-		
-		JRadioButton rdbtnDenial = new JRadioButton("Denied");
-		GridBagConstraints gbc_rdbtnDenial = new GridBagConstraints();
-		gbc_rdbtnDenial.anchor = GridBagConstraints.NORTH;
-		gbc_rdbtnDenial.fill = GridBagConstraints.HORIZONTAL;
-		gbc_rdbtnDenial.insets = new Insets(0, 0, 5, 0);
-		gbc_rdbtnDenial.gridx = 4;
-		gbc_rdbtnDenial.gridy = 4;
-		panelRequestsHub.add(rdbtnDenial, gbc_rdbtnDenial);
-		approval.add(rdbtnDenial);
-		
-		JLabel lblNotes = new JLabel("Additional Notes");
-		GridBagConstraints gbc_lblNotes = new GridBagConstraints();
-		gbc_lblNotes.anchor = GridBagConstraints.NORTH;
-		gbc_lblNotes.fill = GridBagConstraints.HORIZONTAL;
-		gbc_lblNotes.insets = new Insets(0, 0, 5, 5);
-		gbc_lblNotes.gridx = 3;
-		gbc_lblNotes.gridy = 5;
-		panelRequestsHub.add(lblNotes, gbc_lblNotes);
-		
-		JTextArea textArea = new JTextArea();
-		GridBagConstraints gbc_textArea = new GridBagConstraints();
-		gbc_textArea.fill = GridBagConstraints.BOTH;
-		gbc_textArea.insets = new Insets(0, 0, 5, 0);
-		gbc_textArea.gridwidth = 2;
-		gbc_textArea.gridx = 3;
-		gbc_textArea.gridy = 6;
-		panelRequestsHub.add(textArea, gbc_textArea);
-		
-		JButton btnRequestResponse = new JButton("Respond");
-		GridBagConstraints gbc_btnRequestResponse = new GridBagConstraints();
-		gbc_btnRequestResponse.anchor = GridBagConstraints.NORTH;
-		gbc_btnRequestResponse.insets = new Insets(0, 0, 0, 5);
-		gbc_btnRequestResponse.gridx = 3;
-		gbc_btnRequestResponse.gridy = 7;
-		panelRequestsHub.add(btnRequestResponse, gbc_btnRequestResponse);
-		
-		
-		
-		
-		
-		
+
 		JMenuBar menuBar = new JMenuBar();
 		frame.setJMenuBar(menuBar);
 		
@@ -470,8 +401,7 @@ public class EmployeeGUI {
 		try {  
 			connection= DBConnectorFactory.getDatabaseConnection();
 			stmt= connection.createStatement();
-			Statement stmt1 = connection.createStatement();
-			String searchSQL= "SELECT e.id, e.name, c.name, e.availability FROM equipment as e INNER JOIN category as c ON e.category_id = c.id";
+			String searchSQL= "SELECT e.id, e.name, c.name, e.availability FROM category as c INNER JOIN equipment as e ON e.category_id = c.id";
 			
 			result= stmt.executeQuery(searchSQL);
 			while(result.next()) {
@@ -499,15 +429,61 @@ public class EmployeeGUI {
 		
 		
 	}
+
+	public void getAllRequests(JTable table){
+		//connects to the database
+		connection = DBConnectorFactory.getDatabaseConnection();
+				
+		//Three statements to effectively carry out our queries need to display readable information to the use
+		try {
+			stmt = connection.createStatement();
+			Statement transtmt = connection.createStatement();
+			Statement cat_stmt = connection.createStatement();
+			Statement user_stmt = connection.createStatement();
+
+			String allTrans = "SELECT * FROM transaction";//Query to get transactions of currently signed in use
+			result = stmt.executeQuery(allTrans);//execte query with first statement
+
+			while(result.next()) {//continue operation if we didnt get a null response from query
+				String equipMoreInfo = "Select name,category_id,cost from equipment where id="+result.getInt("equipment_id");//query to retrieve equipment name and category id for further querying
+				ResultSet equipMoreResult = transtmt.executeQuery(equipMoreInfo);//execute above query to retrieve equipment info and category Id for next query
+				while(equipMoreResult.next()) {//continue operation
+					String categoryInfo = "Select name from category where id="+equipMoreResult.getInt("category_id");//uses category id to retrieve category name
+					ResultSet moreCategoryInfo = cat_stmt.executeQuery(categoryInfo);//execute query with third and final statement variable declared
+					moreCategoryInfo.next();//continue operation
+
+					String userInfo = "Select customer_id from users where id=" + result.getInt("customer_id");
+					ResultSet user = user_stmt.executeQuery(userInfo);
+					user.next();
+
+					SimpleDateFormat simpDate = new SimpleDateFormat("MMM dd, yyyy");//this lines helps to format date shown
+					Object[] tableData = {
+							equipMoreResult.getString("name"),
+							moreCategoryInfo.getString("name"),
+							simpDate.format(result.getDate("date")),
+							equipMoreResult.getFloat("cost"),
+							user.getString("customer_id"),
+							result.getInt("approve") == 0 ? "Unapproved" : "Approved",
+					};//displays and formats rows that will be inserted in the table
+					DefaultTableModel tblModel= (DefaultTableModel)table.getModel();
+					tblModel.addRow(tableData);//add row wid information to table
+				}
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
 	
 public void AddNewItem() {
 		
-		frame = new JFrame("Grizzly's Entertainment - Employees/Add new Item");
-		frame.setBounds(100, 100, 519, 526);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		JFrame addNewPanel = new JFrame("Grizzly's Entertainment - Employees/Add new Item");
+		addNewPanel.setBounds(100, 100, 519, 526);
+		addNewPanel.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		JPanel itemIDLbl = new JPanel();
-		frame.getContentPane().add(itemIDLbl, BorderLayout.NORTH);
+		addNewPanel.getContentPane().add(itemIDLbl, BorderLayout.NORTH);
 		GridBagLayout gbl_itemIDLbl = new GridBagLayout();
 		gbl_itemIDLbl.columnWidths = new int[] { 65, 131, 63, 96, 37, 0 };
 		gbl_itemIDLbl.rowHeights = new int[] { 30, 30, 30, 0, 30, 0, 30, 0, 30, 30, 30, 30, 30, 0, 0, 80 };
@@ -532,7 +508,7 @@ public void AddNewItem() {
 		gbc_itemID.insets = new Insets(0, 0, 5, 5);
 		gbc_itemID.gridx = 1;
 		gbc_itemID.gridy = 3;
-		itemIDLbl.add(itemID, gbc_itemID);
+		//itemIDLbl.add(itemID, gbc_itemID);
 
 		JTextField itemIDTxt = new JTextField();
 		itemIDTxt.setToolTipText("Enter Item ID:");
@@ -542,7 +518,7 @@ public void AddNewItem() {
 		gbc_itemIDTxt.fill = GridBagConstraints.HORIZONTAL;
 		gbc_itemIDTxt.gridx = 2;
 		gbc_itemIDTxt.gridy = 3;
-		itemIDLbl.add(itemIDTxt, gbc_itemIDTxt);
+		//itemIDLbl.add(itemIDTxt, gbc_itemIDTxt);
 		ButtonGroup status = new ButtonGroup();
 		
 		
@@ -628,7 +604,8 @@ public void AddNewItem() {
 		gbc_statusLbl.gridy = 9;
 		itemIDLbl.add(statusLbl, gbc_statusLbl);
 
-		JRadioButton rdbtnDecline = new JRadioButton("Decline");
+		JRadioButton rdbtnDecline = new JRadioButton("Available");
+		rdbtnDecline.setActionCommand("Available");
 		GridBagConstraints gbc_rdbtnDecline = new GridBagConstraints();
 		gbc_rdbtnDecline.insets = new Insets(0, 0, 5, 5);
 		gbc_rdbtnDecline.gridx = 2;
@@ -636,10 +613,11 @@ public void AddNewItem() {
 		itemIDLbl.add(rdbtnDecline, gbc_rdbtnDecline);
 		status.add(rdbtnDecline);
 		if (rdbtnDecline.isSelected()) {
-			Status1 = "Decline";
+			Status1 = "Available";
 		}
 
-		JRadioButton rdbtnApproved = new JRadioButton("Approve");
+		JRadioButton rdbtnApproved = new JRadioButton("Unavailable");
+		rdbtnApproved.setActionCommand("Unavailable");
 		GridBagConstraints gbc_rdbtnApproved = new GridBagConstraints();
 		gbc_rdbtnApproved.insets = new Insets(0, 0, 5, 5);
 		gbc_rdbtnApproved.gridx = 3;
@@ -647,7 +625,7 @@ public void AddNewItem() {
 		itemIDLbl.add(rdbtnApproved, gbc_rdbtnApproved);
 		status.add(rdbtnApproved);
 		if (rdbtnApproved.isSelected()) {
-			Status1 = "Approved";
+			Status1 = "Unavailable";
 		}
 		
 		JButton clearBtn = new JButton("CLEAR");
@@ -657,7 +635,7 @@ public void AddNewItem() {
 		gbc_clearBtn.gridy = 10;
 		itemIDLbl.add(clearBtn, gbc_clearBtn);
 
-		JLabel DORLbl = new JLabel("Registration Date:");
+		JLabel DORLbl = new JLabel("Equipment Cost:");
 		DORLbl.setFont(new Font("Tahoma", Font.BOLD, 11));
 		GridBagConstraints gbc_DORLbl = new GridBagConstraints();
 		gbc_DORLbl.insets = new Insets(0, 0, 5, 5);
@@ -665,20 +643,25 @@ public void AddNewItem() {
 		gbc_DORLbl.gridy = 11;
 		itemIDLbl.add(DORLbl, gbc_DORLbl);
 
-		JTextField DOR = new JTextField();
-		DOR.setToolTipText("DD/MM/YYYY");
+		//JTextField DOR = new JTextField();
+		SpinnerModel value =  new SpinnerNumberModel((double) 0.0,null,null,(double) 0.1);//minimum value  
+		JSpinner spinner = new JSpinner( value);  
+                
+		//DOR.setToolTipText("DD/MM/YYYY");
 		GridBagConstraints gbc_DOR = new GridBagConstraints();
 		gbc_DOR.gridwidth = 2;
 		gbc_DOR.insets = new Insets(0, 0, 5, 5);
 		gbc_DOR.fill = GridBagConstraints.HORIZONTAL;
 		gbc_DOR.gridx = 2;
 		gbc_DOR.gridy = 11;
-		itemIDLbl.add(DOR, gbc_DOR);
-		DOR.setColumns(10);
+		itemIDLbl.add(spinner, gbc_DOR);
+		//spinner.setColumns(10);
 		
 		JButton exitBtn = new JButton("EXIT");
 		exitBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				addNewPanel.setVisible(false);
+				frame.setVisible(true);
 			}
 		});
 		GridBagConstraints gbc_exitBtn = new GridBagConstraints();
@@ -701,16 +684,23 @@ public void AddNewItem() {
 		submit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					Random ID = new Random();
-					invent.create(itemID.getText(), itemNameTxt.getText(), getCategoryOptSlctd, Status1, DOR.getText(),
-							ID.nextInt());
+					connection= DBConnectorFactory.getDatabaseConnection();
+					submit.setToolTipText("Hello" + itemNameTxt.getText());
+					String categoryIdQuery = "SELECT id FROM category where name='"+(String) categoryComboBox.getSelectedItem()+"'";//get id of currently signed in user
+					Statement stmt1 = connection.createStatement();
+					ResultSet cid = stmt1.executeQuery(categoryIdQuery);
+					cid.next();
+
+					String statusQuery = "SELECT id FROM rental_status where status='"+status.getSelection().getActionCommand()+"'";//get id of currently signed in user
+					Statement stmt2 = connection.createStatement();
+					ResultSet sid = stmt2.executeQuery(statusQuery);
+					sid.next();
+
+					String Query_String = "INSERT INTO equipment(name,category_id,availability,cost) VALUES ('"+itemNameTxt.getText()+"','"+cid.getInt("id")+"','" + sid.getInt("id")+"','"+ (double) spinner.getValue()+ "')";
+					stmt.executeLargeUpdate(Query_String);
+
+					JOptionPane.showMessageDialog(addNewPanel, "Equipment record has been stored");
 					
-					itemIDTxt.setText("");
-					itemNameTxt.setText("");
-					DOR.setText("");
-					categoryComboBox.setSelectedIndex(-1);
-					rdbtnApproved.setSelected(false);
-					rdbtnDecline.setSelected(false);
 					
 				} catch (Exception e1) {
 					e1.printStackTrace();
@@ -718,27 +708,27 @@ public void AddNewItem() {
 
 			}
 		});
-		frame.setVisible(true);
+		addNewPanel.setVisible(true);
 	}
 
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void update() {
 
-		JPanel panel;
+		JPanel update;
 		JTextField updateToTxtField;
-		frame = new JFrame("Grizzly's Entertainment - Employees/Update");
-		frame.setBounds(100, 100, 519, 526);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		JFrame updatePanel = new JFrame("Grizzly's Entertainment - Employees/Update");
+		updatePanel.setBounds(100, 100, 519, 526);
+		updatePanel.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		panel = new JPanel();
-		frame.getContentPane().add(panel, BorderLayout.NORTH);
+		update = new JPanel();
+		updatePanel.getContentPane().add(update, BorderLayout.NORTH);
 		GridBagLayout gbl_panel = new GridBagLayout();
 		gbl_panel.columnWidths = new int[] { 65, 131, 63, 96, 37, 0 };
 		gbl_panel.rowHeights = new int[] { 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 		gbl_panel.columnWeights = new double[] { 0.0, 0.0, 1.0, 0.0, 1.0, Double.MIN_VALUE };
 		gbl_panel.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
-		panel.setLayout(gbl_panel);
+		update.setLayout(gbl_panel);
 
 
 		JLabel UpdateComboBoxLbl = new JLabel("Choose what to Update:");
@@ -748,7 +738,7 @@ public void AddNewItem() {
 		gbc_UpdateComboBoxLbl.insets = new Insets(0, 0, 5, 5);
 		gbc_UpdateComboBoxLbl.gridx = 1;
 		gbc_UpdateComboBoxLbl.gridy = 1;
-		panel.add(UpdateComboBoxLbl, gbc_UpdateComboBoxLbl);
+		update.add(UpdateComboBoxLbl, gbc_UpdateComboBoxLbl);
 
 	
 
@@ -761,7 +751,7 @@ public void AddNewItem() {
 		gbc_updateComboBox.fill = GridBagConstraints.HORIZONTAL;
 		gbc_updateComboBox.gridx = 2;
 		gbc_updateComboBox.gridy = 1;
-		panel.add(updateComboBox, gbc_updateComboBox);
+		update.add(updateComboBox, gbc_updateComboBox);
 		updateComboBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -797,7 +787,7 @@ public void AddNewItem() {
 		gbc_lblNewLabel.insets = new Insets(0, 0, 5, 5);
 		gbc_lblNewLabel.gridx = 1;
 		gbc_lblNewLabel.gridy = 2;
-		panel.add(lblNewLabel, gbc_lblNewLabel);
+		update.add(lblNewLabel, gbc_lblNewLabel);
 
 		JTextField itemIDTxtField = new JTextField();
 		GridBagConstraints gbc_itemIDTxtField = new GridBagConstraints();
@@ -806,7 +796,7 @@ public void AddNewItem() {
 		gbc_itemIDTxtField.fill = GridBagConstraints.HORIZONTAL;
 		gbc_itemIDTxtField.gridx = 2;
 		gbc_itemIDTxtField.gridy = 2;
-		panel.add(itemIDTxtField, gbc_itemIDTxtField);
+		update.add(itemIDTxtField, gbc_itemIDTxtField);
 		itemIDTxtField.setColumns(10);
 
 		JLabel updateToLbl = new JLabel("Update to:");
@@ -815,7 +805,7 @@ public void AddNewItem() {
 		gbc_updateToLbl.insets = new Insets(0, 0, 5, 5);
 		gbc_updateToLbl.gridx = 1;
 		gbc_updateToLbl.gridy = 3;
-		panel.add(updateToLbl, gbc_updateToLbl);
+		update.add(updateToLbl, gbc_updateToLbl);
 
 		updateToTxtField = new JTextField();
 		GridBagConstraints gbc_updateToTxtField = new GridBagConstraints();
@@ -824,7 +814,7 @@ public void AddNewItem() {
 		gbc_updateToTxtField.fill = GridBagConstraints.HORIZONTAL;
 		gbc_updateToTxtField.gridx = 2;
 		gbc_updateToTxtField.gridy = 3;
-		panel.add(updateToTxtField, gbc_updateToTxtField);
+		update.add(updateToTxtField, gbc_updateToTxtField);
 		updateToTxtField.setColumns(10);
 
 		JButton clearBtn = new JButton("CLEAR");
@@ -832,13 +822,13 @@ public void AddNewItem() {
 		gbc_clearBtn.insets = new Insets(0, 0, 5, 5);
 		gbc_clearBtn.gridx = 2;
 		gbc_clearBtn.gridy = 4;
-		panel.add(clearBtn, gbc_clearBtn);
+		update.add(clearBtn, gbc_clearBtn);
 		clearBtn.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				itemIDTxtField.setText("");
-				updateToTxtField.setText("");
+				updatePanel.setVisible(false);
+				frame.setVisible(true);
 			}
 
 		});
@@ -849,31 +839,13 @@ public void AddNewItem() {
 		gbc_exit.insets = new Insets(0, 0, 5, 5);
 		gbc_exit.gridx = 3;
 		gbc_exit.gridy = 4;
-		panel.add(exit, gbc_exit);
+		update.add(exit, gbc_exit);
 		exit.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				/*
-				 * 
-				 *  
-				 *  
-				 *  
-				 *  EmployeeLogin window = new EmployeeLogin();
-				window.frame.setVisible(true);
-				 *  
-				 *  
-				 *  
-				 *  
-				 *  
-				 *  
-				 *  
-				 *  
-				 *  
-				 *  
-				 *  
-				 *
-				 */
+				updatePanel.setVisible(false);
+				frame.setVisible(true);
 			}
 
 		});
@@ -888,13 +860,14 @@ public void AddNewItem() {
 		gbc_btnCancel.insets = new Insets(0, 0, 0, 5);
 		gbc_btnCancel.gridx = 2;
 		gbc_btnCancel.gridy = 8;
-		panel.add(btnCancel, gbc_btnCancel);
+		update.add(btnCancel, gbc_btnCancel);
 		btnCancel.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 
-				
+				updatePanel.setVisible(false);
+				frame.setVisible(true);
 			}
 		});
 		JButton btnUpdate = new JButton("UPDATE");
@@ -908,11 +881,13 @@ public void AddNewItem() {
 		gbc_btnUpdate.fill = GridBagConstraints.BOTH;
 		gbc_btnUpdate.gridx = 3;
 		gbc_btnUpdate.gridy = 8;
-		panel.add(btnUpdate, gbc_btnUpdate);
+		update.add(btnUpdate, gbc_btnUpdate);
 		btnUpdate.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				updatePanel.setVisible(false);
+				frame.setVisible(true);
 				switch (getComboBoxAction) {
 				case "All":
 					System.out.print("God, I Love you!!!!!!");
@@ -944,24 +919,23 @@ public void AddNewItem() {
 				}
 			}
 		});
-		frame.setVisible(true);
+		updatePanel.setVisible(true);
 	}
 
 	public void delete() {
 		JTextField textField;
-		Inventory invent = new Inventory();
-		JPanel panel;
-		frame = new JFrame("Grizzly's Entertainment - Employees-Delete");
-		frame.setBounds(100, 100, 519, 526);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		panel = new JPanel();
-		frame.getContentPane().add(panel, BorderLayout.CENTER);
+		JPanel deletePanel;
+		JFrame deleteFrame = new JFrame("Grizzly's Entertainment - Employees-Delete");
+		deleteFrame.setBounds(100, 100, 519, 526);
+		deleteFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		deletePanel = new JPanel();
+		deleteFrame.getContentPane().add(deletePanel, BorderLayout.CENTER);
 		GridBagLayout gbl_panel = new GridBagLayout();
 		gbl_panel.columnWidths = new int[] { 65, 100, 63, 100, 0, 0 };
 		gbl_panel.rowHeights = new int[] { 14, 0, 0, 0, 0, 0, 0, 0 };
 		gbl_panel.columnWeights = new double[] { 0.0, 1.0, 1.0, 1.0, 1.0, Double.MIN_VALUE };
 		gbl_panel.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
-		panel.setLayout(gbl_panel);
+		deletePanel.setLayout(gbl_panel);
 
 		JLabel lblNewLabel = new JLabel("Enter Item ID:");
 		lblNewLabel.setToolTipText("Delete from database");
@@ -969,7 +943,7 @@ public void AddNewItem() {
 		gbc_lblNewLabel.insets = new Insets(0, 0, 5, 5);
 		gbc_lblNewLabel.gridx = 1;
 		gbc_lblNewLabel.gridy = 1;
-		panel.add(lblNewLabel, gbc_lblNewLabel);
+		deletePanel.add(lblNewLabel, gbc_lblNewLabel);
 
 		textField = new JTextField();
 		GridBagConstraints gbc_textField = new GridBagConstraints();
@@ -978,7 +952,7 @@ public void AddNewItem() {
 		gbc_textField.fill = GridBagConstraints.HORIZONTAL;
 		gbc_textField.gridx = 2;
 		gbc_textField.gridy = 1;
-		panel.add(textField, gbc_textField);
+		deletePanel.add(textField, gbc_textField);
 		textField.setColumns(10);
 
 		JButton btnNewButton_1 = new JButton("CLEAR");
@@ -986,7 +960,7 @@ public void AddNewItem() {
 		gbc_btnNewButton_1.insets = new Insets(0, 0, 5, 0);
 		gbc_btnNewButton_1.gridx = 4;
 		gbc_btnNewButton_1.gridy = 1;
-		panel.add(btnNewButton_1, gbc_btnNewButton_1);
+		deletePanel.add(btnNewButton_1, gbc_btnNewButton_1);
 		btnNewButton_1.addActionListener(new ActionListener() {
 
 			@Override
@@ -1005,13 +979,14 @@ public void AddNewItem() {
 		gbc_btnCancel.insets = new Insets(0, 0, 0, 5);
 		gbc_btnCancel.gridx = 1;
 		gbc_btnCancel.gridy = 5;
-		panel.add(btnCancel, gbc_btnCancel);
+		deletePanel.add(btnCancel, gbc_btnCancel);
 		btnCancel.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 
-				
+				deletePanel.setVisible(false);
+				frame.setVisible(true);
 			}
 		});
 		JButton btnDelete = new JButton("DELETE");
@@ -1025,15 +1000,15 @@ public void AddNewItem() {
 		gbc_btnDelete.insets = new Insets(0, 0, 0, 5);
 		gbc_btnDelete.gridx = 3;
 		gbc_btnDelete.gridy = 5;
-		panel.add(btnDelete, gbc_btnDelete);
-		frame.setVisible(true);
+		deletePanel.add(btnDelete, gbc_btnDelete);
+		deleteFrame.setVisible(true);
 		btnDelete.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 
-				invent.delete(textField.getText());
-				textField.setText("");
+				deletePanel.setVisible(false);
+				frame.setVisible(true);
 			}
 		});
 	}
